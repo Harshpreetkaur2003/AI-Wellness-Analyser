@@ -1,39 +1,10 @@
-# app.py
-
 import streamlit as st
-import pandas as pd
-import pickle
-from docx import Document
-import io
-import random
 import matplotlib.pyplot as plt
 import numpy as np
+from docx import Document
+import random
 
-# ---------------- PAGE CONFIG ----------------
-st.set_page_config(
-    page_title="AI Wellness & Performance Analyzer",
-    page_icon="🧠",
-    layout="wide"
-)
-
-# ---------------- DARK UI ----------------
-st.markdown("""
-    <style>
-        .stApp {
-            background-color: #0E1117;
-            color: white;
-        }
-        h1, h2, h3 {
-            color: #00F5FF;
-        }
-    </style>
-""", unsafe_allow_html=True)
-
-st.title("🧠 AI Wellness & Performance Analyzer")
-st.markdown("### Smart Lifestyle • Stress Prediction • Fitness • Career Blueprint")
-st.markdown("---")
-
-# ---------------- LOAD MODEL ----------------
+st.set_page_config(page_title="AI Wellness & Career Consultant", layout="wide")
 import os
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -46,220 +17,234 @@ with open(MODEL_PATH, "rb") as f:
 
 with open(LE_PATH, "rb") as f:
     le = pickle.load(f)
-# ---------------- INPUT SECTION ----------------
-st.header("📋 Enter Your Details")
 
-name = st.text_input("Your Name")
+# -------------------- PREMIUM UI --------------------
+st.markdown("""
+<style>
+.stApp {
+    background: linear-gradient(135deg, #141E30, #243B55, #1c1c1c);
+    background-attachment: fixed;
+}
 
-col1, col2 = st.columns(2)
+h1, h2, h3, h4, h5, h6, p, label {
+    color: #f5f5f5 !important;
+}
 
-with col1:
-    study_hours = st.number_input("Study Hours (per day)", 0, 12, 4)
-    sleep_hours = st.number_input("Sleep Hours", 0, 12, 7)
-    physical_activity = st.number_input("Workout Hours", 0, 4, 1)
-    social_hours = st.number_input("Social Hours", 0, 6, 2)
-    gpa = st.number_input("GPA", 0.0, 10.0, 8.0, 0.1)
-    weight = st.number_input("Weight (kg)", 30, 200, 65)
-    height = st.number_input("Height (cm)", 100, 220, 165)
+[data-testid="metric-container"] {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 15px;
+}
 
-with col2:
-    career_stress = st.slider("Career Stress (1-10)", 1, 10, 5)
-    motivation = st.slider("Motivation Level (1-10)", 1, 10, 7)
-    water = st.number_input("Water Intake (liters)", 0.0, 5.0, 2.0, 0.1)
-    food_type = st.selectbox("Diet Preference", ["Vegetarian", "Non-Vegetarian", "Vegan"])
-    workout_type = st.selectbox("Workout Preference",
-        ["Gym Training", "Home Workout", "Yoga Only", "Cardio Focus", "Mixed Routine"])
+.stButton>button {
+    background: linear-gradient(45deg, #00c6ff, #0072ff);
+    color: white;
+    border-radius: 8px;
+    font-weight: bold;
+}
+</style>
+""", unsafe_allow_html=True)
 
-st.markdown("---")
+# -------------------- HEADER --------------------
+st.title("🧠 AI Wellness & Career Consultant")
 
-st.header("🎯 Career Direction")
-
-career_domain = st.selectbox(
-    "Select Career Domain",
-    ["Management", "IT & Data", "Government Exams", "Creative Field", "Entrepreneurship"]
+st.image(
+    "https://images.unsplash.com/photo-1519389950473-47ba0277781c",
+    use_column_width=True
 )
 
-career_niche = st.text_input("Specific Niche (Example: Data Science, MBA Finance, UPSC, UI/UX)")
+st.markdown("---")
+
+# -------------------- USER INPUT --------------------
+name = st.text_input("Enter Your Name")
+age = st.number_input("Enter Age", 16, 60)
+sleep_hours = st.slider("Sleep Hours", 0, 12)
+study_hours = st.slider("Study/Work Hours", 0, 12)
+workout_hours = st.slider("Workout Hours", 0, 4)
+water = st.slider("Water Intake (Litres)", 0.0, 5.0)
+motivation = st.slider("Motivation Level (1-10)", 1, 10)
+
+diet_type = st.selectbox("Diet Preference", ["Vegetarian", "Vegan", "Non-Vegetarian"])
+workout_type = st.selectbox("Workout Type", ["Fat Loss", "Muscle Gain", "General Fitness"])
+
+career_domain = st.selectbox(
+    "Career Domain",
+    ["IT", "Management", "Finance", "Entrepreneurship", "Creative Field"]
+)
+
+niche = st.text_input("Select / Enter Your Niche (Example: AI, Marketing, Investment Banking, Startup etc.)")
 
 st.markdown("---")
 
-# ---------------- GENERATE REPORT ----------------
-if st.button("Generate Full AI Wellness Report"):
+# -------------------- CALCULATIONS --------------------
+productivity_score = min(100, (sleep_hours*5 + study_hours*6 + motivation*4))
+health_score = min(100, (sleep_hours*6 + workout_hours*15 + water*5))
 
-    st.balloons()
+# -------------------- METRICS --------------------
+col1, col2 = st.columns(2)
+col1.metric("⚡ Productivity Score", f"{productivity_score}/100")
+col2.metric("💪 Health Score", f"{health_score}/100")
 
-    input_df = pd.DataFrame({
-        "Study_Hours_Per_Day": [study_hours],
-        "Extracurricular_Hours_Per_Day": [1],
-        "Sleep_Hours_Per_Day": [sleep_hours],
-        "Social_Hours_Per_Day": [social_hours],
-        "Physical_Activity_Hours_Per_Day": [physical_activity],
-        "GPA": [gpa]
-    })
+st.progress(productivity_score / 100)
+st.progress(health_score / 100)
 
-    prediction = model.predict(input_df)
-    stress_level = le.inverse_transform(prediction)[0]
+st.markdown("---")
 
-    bmi = weight / ((height / 100) ** 2)
+# -------------------- DETAILED CONSULTANT SUGGESTIONS --------------------
+if name:
 
-    productivity_score = int((sleep_hours * 10) +
-                             (physical_activity * 15) +
-                             (motivation * 5) -
-                             (career_stress * 4))
-    productivity_score = max(0, min(productivity_score, 100))
+    st.subheader("🩺 Personalized Consultant Advice")
 
-    health_score = int((100 - abs(22 - bmi) * 5) +
-                       (physical_activity * 10) +
-                       (water * 5))
-    health_score = max(0, min(health_score, 100))
+    st.write(f"Dear {name}, based on your inputs, here’s my honest professional guidance for you:")
 
-    # ---------------- KPI SECTION ----------------
-    st.markdown(f"## 💬 Dear {name}, Here Is Your Detailed AI Analysis")
-
-    colA, colB, colC = st.columns(3)
-    colA.metric("Stress Level", stress_level)
-    colB.metric("Productivity", f"{productivity_score}/100")
-    colC.metric("Health Score", f"{health_score}/100")
-
-    st.progress(productivity_score / 100)
-
-    # ---------------- BAR GRAPH ----------------
-    st.subheader("⏳ Weekly Time Distribution")
-
-    weekly_data = {
-        "Study": study_hours * 7,
-        "Workout": physical_activity * 7,
-        "Sleep": sleep_hours * 7
-    }
-
-    fig, ax = plt.subplots(figsize=(5,3), facecolor="#0E1117")
-    ax.set_facecolor("#0E1117")
-    ax.bar(weekly_data.keys(), weekly_data.values(),
-           color=["#00F5FF", "#FF2E63", "#08F7FE"])
-    ax.tick_params(colors="white")
-    ax.set_ylabel("Hours", color="white")
-    st.pyplot(fig)
-
-    # ---------------- RADAR PERFORMANCE GRAPH ----------------
-    st.subheader("📊 Overall Performance Radar")
-
-    categories = ["Sleep", "Workout", "Motivation", "Study"]
-    values = [
-        sleep_hours / 12,
-        physical_activity / 4,
-        motivation / 10,
-        study_hours / 12
-    ]
-
-    angles = np.linspace(0, 2 * np.pi, len(categories), endpoint=False)
-    values += values[:1]
-    angles = np.concatenate((angles, [angles[0]]))
-
-    fig2, ax2 = plt.subplots(figsize=(4,4), subplot_kw=dict(polar=True))
-    fig2.patch.set_facecolor("#0E1117")
-    ax2.set_facecolor("#0E1117")
-    ax2.plot(angles, values, color="#00F5FF")
-    ax2.fill(angles, values, color="#00F5FF", alpha=0.3)
-    ax2.set_xticks(angles[:-1])
-    ax2.set_xticklabels(categories, color="white")
-    ax2.set_yticklabels([])
-    st.pyplot(fig2)
-
-    # ---------------- DETAILED DIET ----------------
-    st.subheader("🥗 Detailed Nutrition Strategy")
-
-    st.write("Goal: Stable energy, muscle recovery, and mental clarity.")
-
-    if food_type == "Vegetarian":
-        st.write("Breakfast: Oats + Milk + Almonds (Complex carbs + Protein)")
-        st.write("Lunch: Dal + Brown Rice + Paneer (High protein vegetarian)")
-        st.write("Evening: Fruits + Nuts (Micronutrients)")
-        st.write("Dinner: Light roti + vegetables (Low fat)")
-    elif food_type == "Vegan":
-        st.write("Breakfast: Peanut butter smoothie (Plant protein)")
-        st.write("Lunch: Quinoa + Chickpeas (Complete amino acids)")
-        st.write("Snack: Seeds mix")
-        st.write("Dinner: Tofu + Vegetables")
+    # Sleep
+    if sleep_hours < 6:
+        st.warning("⚠ Your sleep is critically low. You must target 7-8 hours. Without recovery, productivity will crash.")
     else:
-        st.write("Breakfast: Eggs + Whole wheat toast (High protein)")
-        st.write("Lunch: Grilled chicken + Rice (Muscle repair)")
-        st.write("Snack: Yogurt")
-        st.write("Dinner: Fish + Salad (Omega-3 support)")
+        st.success("✅ Good sleep habit. Maintain consistent sleep timing.")
 
-    # ---------------- DETAILED WORKOUT ----------------
-    st.subheader("🏋 Structured Weekly Workout Plan")
+    # Diet
+    st.subheader("🥗 Detailed Diet Plan")
 
-    if workout_type == "Gym Training":
-        st.write("Mon: Chest + Triceps (Compound lifts)")
-        st.write("Tue: Back + Biceps")
-        st.write("Wed: Legs (Heavy squats)")
-        st.write("Thu: Shoulders")
-        st.write("Fri: Core + HIIT")
-    elif workout_type == "Home Workout":
-        st.write("Pushups 3x15")
-        st.write("Squats 3x20")
-        st.write("Plank 3x60 sec")
-        st.write("Jump rope 10 min")
-    elif workout_type == "Yoga Only":
-        st.write("Surya Namaskar 10 rounds")
-        st.write("Pranayama 15 min")
-        st.write("Meditation 20 min")
-    elif workout_type == "Cardio Focus":
-        st.write("Running 30 min")
-        st.write("Cycling 20 min")
-        st.write("HIIT 15 min")
-    else:
-        st.write("Strength 3 days")
-        st.write("Cardio 2 days")
-        st.write("Yoga 1 day")
-
-    # ---------------- DETAILED 90 DAY PLAN ----------------
-    st.subheader("🚀 90-Day Career Execution Blueprint")
-
-    st.write("Month 1: Build Core Knowledge")
-    st.write("Week 1-2: Fundamentals")
-    st.write("Week 3-4: Practice + Mini Project")
-
-    st.write("Month 2: Advanced Skill + Major Project")
-    st.write("Week 5-6: Deep specialization")
-    st.write("Week 7-8: Build strong portfolio")
-
-    st.write("Month 3: Execution")
-    st.write("Week 9-10: Mock interviews")
-    st.write("Week 11-12: Apply & network aggressively")
-
-    # ---------------- FINAL MOTIVATION ----------------
-    st.subheader("💬 Final Consultant Advice")
-
-    st.markdown(f"""
-Dear {name},
-
-If you execute this plan consistently for 90 days in **{career_niche}**, 
-your confidence, skill level, and opportunities will dramatically improve.
-
-Momentum builds identity.
-Identity builds success.
+    if diet_type == "Vegetarian":
+        st.write("""
+- Breakfast: Oats + Peanut Butter + Banana  
+- Lunch: Dal, Brown Rice, Paneer, Salad  
+- Evening: Dry Fruits + Green Tea  
+- Dinner: Roti + Mixed Veg + Curd  
+- Protein Target: 1.0–1.2g per kg bodyweight
 """)
 
-    # ---------------- REPORT ----------------
-    doc = Document()
-    doc.add_heading("AI Wellness Report", 0)
-    doc.add_paragraph(f"Name: {name}")
-    doc.add_paragraph(f"Stress Level: {stress_level}")
-    doc.add_paragraph(f"Productivity Score: {productivity_score}")
-    doc.add_paragraph(f"Health Score: {health_score}")
-    doc.add_paragraph(f"Career Domain: {career_domain}")
-    doc.add_paragraph(f"Career Niche: {career_niche}")
+    elif diet_type == "Vegan":
+        st.write("""
+- Breakfast: Smoothie (Almond Milk + Banana + Chia Seeds)  
+- Lunch: Quinoa + Chickpeas + Tofu  
+- Evening: Nuts + Coconut Water  
+- Dinner: Lentils + Stir Fried Vegetables  
+- Add B12 Supplement weekly
+""")
 
-    buffer = io.BytesIO()
-    doc.save(buffer)
+    else:
+        st.write("""
+- Breakfast: Eggs + Toast + Fruits  
+- Lunch: Chicken/Fish + Rice + Veggies  
+- Evening: Boiled Eggs or Greek Yogurt  
+- Dinner: Light Protein + Salad  
+- Protein Target: 1.2–1.5g per kg bodyweight
+""")
 
-    st.download_button(
-        "⬇️ Download Full Professional Report",
-        data=buffer.getvalue(),
-        file_name="AI_Wellness_Report.docx",
-        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    )
+    # Workout Plan
+    st.subheader("🏋 Customized Workout Plan")
+
+    if workout_type == "Fat Loss":
+        st.write("""
+Weekly Plan:
+Mon: Cardio + Core  
+Tue: Lower Body Strength  
+Wed: HIIT  
+Thu: Upper Body  
+Fri: Cardio  
+Sat: Full Body Circuit  
+Sun: Active Rest
+""")
+    elif workout_type == "Muscle Gain":
+        st.write("""
+Weekly Plan:
+Mon: Chest + Triceps  
+Tue: Back + Biceps  
+Wed: Legs  
+Thu: Shoulders  
+Fri: Push-Pull Combo  
+Sat: Light Cardio  
+Sun: Rest
+""")
+    else:
+        st.write("""
+Weekly Plan:
+3 Days Strength Training  
+2 Days Cardio  
+1 Day Yoga  
+1 Day Rest
+""")
+
+    # Career Roadmap
+    st.subheader("🚀 12-Week Career Roadmap")
+
+    st.write(f"Target Domain: {career_domain} | Niche: {niche}")
+
+    st.write("""
+Weeks 1–4:
+- Build fundamentals
+- Study 2 hours daily
+- Take 1 small project
+
+Weeks 5–8:
+- Build 2 major projects
+- Improve LinkedIn
+- Start networking
+
+Weeks 9–12:
+- Mock interviews
+- Apply for internships/jobs
+- Build portfolio website
+""")
+
+    st.markdown("---")
+
+    # Graph Section
+    st.subheader("📊 Performance Analytics")
+
+    colg1, colg2 = st.columns(2)
+
+    with colg1:
+        fig, ax = plt.subplots(figsize=(4,3))
+        ax.bar(["Productivity", "Health"], [productivity_score, health_score])
+        ax.set_facecolor("#1f2c3c")
+        fig.patch.set_facecolor("#1f2c3c")
+        ax.tick_params(colors='white')
+        ax.spines[:].set_color("white")
+        ax.set_title("Score Comparison", color="white")
+        st.pyplot(fig)
+
+    with colg2:
+        fig2, ax2 = plt.subplots(figsize=(4,3))
+        ax2.plot(
+            ["Sleep", "Study", "Workout", "Water"],
+            [sleep_hours, study_hours, workout_hours, water],
+            marker='o'
+        )
+        ax2.set_facecolor("#1f2c3c")
+        fig2.patch.set_facecolor("#1f2c3c")
+        ax2.tick_params(colors='white')
+        ax2.spines[:].set_color("white")
+        ax2.set_title("Habit Analysis", color="white")
+        st.pyplot(fig2)
+
+    st.markdown("---")
+
+    # REPORT GENERATION
+    if st.button("📄 Generate AI Report"):
+        st.balloons()
+
+        doc = Document()
+        doc.add_heading("AI Wellness & Career Report", 0)
+        doc.add_paragraph(f"Name: {name}")
+        doc.add_paragraph(f"Productivity Score: {productivity_score}")
+        doc.add_paragraph(f"Health Score: {health_score}")
+        doc.add_paragraph("Diet Plan and Workout Plan included.")
+        doc.save("AI_Report.docx")
+
+        st.success("Report Generated Successfully!")
+
+        quotes = [
+            "Discipline beats motivation.",
+            "Your future is created by what you do today.",
+            "Consistency builds greatness."
+        ]
+
+        st.subheader("🔥 Final Motivation")
+        st.write(random.choice(quotes))
+
 
 
 
