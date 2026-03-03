@@ -18,12 +18,12 @@ st.set_page_config(
     layout="wide"
 )
 
-# ---------------- DARK CLASSY BACKGROUND ----------------
+# ---------------- CINEMATIC NOIR BACKGROUND ----------------
 st.markdown(
     """
     <style>
     .stApp {
-        background: url('https://images.unsplash.com/photo-1617196035870-4f5d9b63d749?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
+        background: url('https://images.unsplash.com/photo-1518709268802-4c3e7b9e13d7?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
         background-size: cover;
         color: white;
         font-family: 'Segoe UI', sans-serif;
@@ -31,19 +31,22 @@ st.markdown(
     h1, h2, h3 {
         color: #00F5FF;
         font-weight: 700;
+        text-shadow: 2px 2px 8px #000000;
     }
     .glass {
-        background: rgba(0,0,0,0.65);
+        background: rgba(0,0,0,0.7);
         padding: 20px;
         border-radius: 20px;
-        backdrop-filter: blur(15px);
+        backdrop-filter: blur(20px);
         margin-bottom: 20px;
+        box-shadow: 0 0 15px #000000;
     }
     .metric-box {
-        background: rgba(0,0,0,0.7);
+        background: rgba(0,0,0,0.75);
         border-radius: 15px;
         padding: 15px;
         text-align: center;
+        box-shadow: 0 0 10px #111111;
     }
     </style>
     """,
@@ -101,7 +104,7 @@ with open(LE_PATH, "rb") as f:
     le = pickle.load(f)
 
 # ---------------- USER INPUT ----------------
-st.header("📋 Enter Your Details", anchor=None)
+st.header("📋 Enter Your Details")
 name = st.text_input("Your Name")
 
 col1, col2 = st.columns(2)
@@ -166,7 +169,6 @@ if st.button("Generate Full AI Wellness Report"):
     # ---------------- TAB 1: Analytics ----------------
     with tab1:
         st.subheader("📈 Lifestyle & Performance Overview")
-        # Factor Contribution & Cumulative
         factors = ["Sleep","Workout","Motivation","Stress Impact"]
         values = [sleep_hours*10, physical_activity*15, motivation*5, -career_stress*4]
         fig_combo = go.Figure()
