@@ -8,10 +8,18 @@ import io
 import random
 
 # ---------------- LOAD MODEL ----------------
-with open("models/productivity_model.pkl", "rb") as f:
+# ---------------- LOAD MODEL (FIXED FOR STREAMLIT CLOUD) ----------------
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+MODEL_PATH = os.path.join(BASE_DIR, "models", "productivity_model.pkl")
+LE_PATH = os.path.join(BASE_DIR, "models", "label_encoder.pkl")
+
+with open(MODEL_PATH, "rb") as f:
     model = pickle.load(f)
 
-with open("models/label_encoder.pkl", "rb") as f:
+with open(LE_PATH, "rb") as f:
     le = pickle.load(f)
 
 # ---------------- PAGE CONFIG ----------------
@@ -261,4 +269,5 @@ if st.button("Generate Full AI Wellness Report"):
         data=buffer.getvalue(),
         file_name="AI_Wellness_Report.docx",
         mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+
     )
