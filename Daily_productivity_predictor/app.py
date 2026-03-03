@@ -58,8 +58,7 @@ st.markdown(
 if "authenticated" not in st.session_state:
     st.session_state.authenticated = False
 
-if "generated_otp" not in st.session_state:
-    st.session_state.generated_otp = ''.join(random.choices(string.digits, k=4))
+
 
 # ---------------- LOGIN ----------------
 if not st.session_state.authenticated:
@@ -215,3 +214,4 @@ if st.button("Generate Full AI Wellness Report"):
         file_name="AI_Wellness_Report.docx",
         mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     )
+
