@@ -64,15 +64,7 @@ if not st.session_state.authenticated:
     st.title("🔐 Secure Access Portal")
     login_type = st.radio("Choose Authentication Method", ["Secret Passphrase", "Dynamic OTP Login"])
 
-    if login_type == "Secret Passphrase":
-        passphrase = st.text_input("Enter Secret Passphrase", type="password")
-        if st.button("Login"):
-            if passphrase == "UnlockMyWellnessAI":
-                st.session_state.authenticated = True
-                st.success("✅ Access Granted!")
-                st.rerun()
-            else:
-                st.error("❌ Incorrect Passphrase")
+  
 
     elif login_type == "Dynamic OTP Login":
         st.info(f"Your One-Time Code: {st.session_state.generated_otp}")
@@ -244,6 +236,7 @@ if st.button("Generate Full AI Wellness Report"):
     st.download_button("⬇️ Download Full Professional Report", data=buffer.getvalue(),
                        file_name="AI_Wellness_Report.docx",
                        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+
 
 
 
