@@ -91,14 +91,7 @@ if not st.session_state.authenticated:
 st.markdown('<div class="glass"><h1>🧠 AI Wellness & Performance Analyzer</h1></div>', unsafe_allow_html=True)
 st.markdown('<div class="glass"><h3>Smart Lifestyle • Stress Prediction • Fitness • Career Blueprint</h3></div>', unsafe_allow_html=True)
 
-# ---------------- LOAD MODEL ----------------
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(BASE_DIR, "models", "productivity_model.pkl")
-LE_PATH = os.path.join(BASE_DIR, "models", "label_encoder.pkl")
 
-
-with open(LE_PATH, "rb") as f:
-    le = pickle.load(f)
 
 # ---------------- USER INPUT ----------------
 st.header("📋 Enter Your Details")
@@ -251,5 +244,6 @@ if st.button("Generate Full AI Wellness Report"):
     st.download_button("⬇️ Download Full Professional Report", data=buffer.getvalue(),
                        file_name="AI_Wellness_Report.docx",
                        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+
 
 
