@@ -21,7 +21,7 @@ with open(MODEL_PATH, "rb") as f:
     model = pickle.load(f)
 
 with open(LE_PATH, "rb") as f:
-    le = pickle.load(f)
+    le = pickle.load(f))
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
@@ -55,11 +55,7 @@ with col2:
 
 st.markdown("---")
 
-# ---------------- GENERATE REPORT ----------------
 if st.button("Generate Smart AI Report"):
-
-    # 🎈 Celebration Animation
-    st.balloons()
 
     # -------- Prediction --------
     input_df = pd.DataFrame({
@@ -102,96 +98,93 @@ if st.button("Generate Smart AI Report"):
     )
     mental_balance = max(0, min(mental_balance, 100))
 
-    # -------- Dynamic Quote --------
-    if stress_level == "High":
-        quote = "Slow down. Recovery is also productivity."
-    elif motivation < 5:
-        quote = "Action creates motivation."
-    elif productivity_score > 75:
-        quote = "Mastery demands focus."
-    else:
-        quote = "Progress, not perfection."
+    # -------- Dashboard Tabs --------
+    tab1, tab2, tab3 = st.tabs([
+        "📊 Overview",
+        "🧠 Mental Intelligence",
+        "🎯 Growth Strategy"
+    ])
 
-    # ---------------- DASHBOARD ----------------
-    st.header("📊 Performance Overview")
+    # -------- TAB 1 --------
+    with tab1:
+        st.subheader("Performance Overview")
+        st.success(f"Predicted Stress Level: {stress_level}")
+        st.write(f"BMI: {round(bmi,2)} ({bmi_status})")
 
-    colA, colB, colC = st.columns(3)
+        st.metric("Productivity Score", f"{productivity_score}/100")
+        st.metric("Mental Balance Score", f"{mental_balance}/100")
 
-    colA.metric("Stress Level", stress_level)
-    colB.metric("Productivity Score", f"{productivity_score}/100")
-    colC.metric("Mental Balance", f"{mental_balance}/100")
+        st.markdown("### 📊 Performance Statistics")
 
-    st.markdown("---")
+        # ✅ BAR GRAPH (New Addition)
+        labels = ["Productivity", "Mental Balance", "Stress Level"]
+        stress_numeric = 30 if stress_level == "Low" else 60 if stress_level == "Medium" else 90
+        values = [productivity_score, mental_balance, stress_numeric]
 
-    # -------- BAR GRAPH --------
-    st.subheader("📊 Statistical Breakdown")
+        fig, ax = plt.subplots()
+        ax.bar(labels, values)
+        ax.set_ylim(0, 100)
+        ax.set_ylabel("Score Level")
+        ax.set_title("AI Performance Analysis")
+        st.pyplot(fig)
 
-    labels = ["Sleep", "Activity", "Stress Control", "Motivation", "Hydration"]
-    values = [
-        sleep_hours * 10,
-        physical_activity * 20,
-        100 - (career_stress * 10),
-        motivation * 10,
-        water * 20
-    ]
+    # -------- TAB 2 --------
+    with tab2:
+        st.subheader("Mental Health Intelligence")
 
-    fig1 = plt.figure()
-    plt.bar(labels, values)
-    plt.xticks(rotation=45)
-    plt.ylabel("Score (0-100)")
-    plt.title("Lifestyle Statistics Overview")
-    st.pyplot(fig1)
+        if stress_level == "High":
+            st.error("High stress detected. Prioritize recovery.")
+            st.write("• 10 minutes daily meditation")
+            st.write("• Reduce multitasking")
+            st.write("• Schedule digital detox")
 
-    st.markdown("---")
+        elif stress_level == "Medium":
+            st.warning("Moderate stress. Improve balance.")
+            st.write("• Weekly reflection journaling")
+            st.write("• 30 mins daily exercise")
+            st.write("• Deep breathing exercises")
 
-    # -------- RADAR CHART --------
-    st.subheader("📈 Performance Radar Chart")
+        else:
+            st.success("Low stress. Maintain your system.")
+            st.write("• Continue structured routine")
+            st.write("• Challenge yourself with growth goals")
 
-    categories = ["Sleep", "Activity", "Stress", "Motivation"]
-    radar_values = [
-        sleep_hours * 10,
-        physical_activity * 20,
-        100 - (career_stress * 10),
-        motivation * 10
-    ]
+    # -------- TAB 3 --------
+    with tab3:
+        st.subheader("7-Day Action Plan")
 
-    radar_values += radar_values[:1]
-    angles = np.linspace(0, 2 * np.pi, len(categories), endpoint=False).tolist()
-    angles += angles[:1]
+        weekly_plan = [
+            "Day 1: Define your 30-day goal",
+            "Day 2: Deep Work (2 hours)",
+            "Day 3: Skill Practice",
+            "Day 4: Fitness + Reflection",
+            "Day 5: Productivity Sprint",
+            "Day 6: Learn + Implement",
+            "Day 7: Review & Reset"
+        ]
 
-    fig2, ax = plt.subplots(subplot_kw=dict(polar=True))
-    ax.plot(angles, radar_values)
-    ax.fill(angles, radar_values, alpha=0.25)
-    ax.set_xticks(angles[:-1])
-    ax.set_xticklabels(categories)
-    ax.set_yticklabels([])
-
-    st.pyplot(fig2)
-
-    st.markdown("---")
-
-    # -------- INSIGHT SECTION --------
-    st.subheader("🧠 AI Insight")
-    st.info(quote)
+        for day in weekly_plan:
+            st.write("-", day)
 
     # -------- DOCX REPORT --------
     doc = Document()
     doc.add_heading("AI Adaptive Wellness Report", 0)
     doc.add_paragraph(f"Stress Level: {stress_level}")
-    doc.add_paragraph(f"BMI: {round(bmi,2)} ({bmi_status})")
     doc.add_paragraph(f"Productivity Score: {productivity_score}/100")
     doc.add_paragraph(f"Mental Balance Score: {mental_balance}/100")
-    doc.add_paragraph(f"AI Insight: {quote}")
 
     buffer = io.BytesIO()
     doc.save(buffer)
 
-    st.download_button(
+    # ✅ Download Button + Balloons 🎈
+    if st.download_button(
         "⬇️ Download Smart Report (DOCX)",
         data=buffer.getvalue(),
         file_name="AI_Smart_Wellness_Report.docx",
         mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    )
+    ):
+        st.balloons()
+
 
 
 
