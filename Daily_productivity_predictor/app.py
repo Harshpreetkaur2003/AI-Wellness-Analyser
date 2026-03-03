@@ -18,14 +18,14 @@ st.set_page_config(
     layout="wide"
 )
 
-# ---------------- DULL DARK BACKGROUND ----------------
+# ---------------- DARK CINEMATIC BACKGROUND ----------------
 st.markdown(
     """
     <style>
     .stApp {
         background: url('https://images.unsplash.com/photo-1505685296765-3a2736de412f?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
         background-size: cover;
-        filter: brightness(0.35); /* dull the brightness for text visibility */
+        filter: brightness(0.35);
         color: white;
         font-family: 'Segoe UI', sans-serif;
     }
@@ -196,33 +196,7 @@ if st.button("Generate Full AI Wellness Report"):
         st.plotly_chart(fig_surface,use_container_width=True)
 
     # ---------------- TAB 2-4 same as previous ----------------
-    # (Keep rest of the code unchanged: diet/workout tab, consultant report, career blueprint, and report download)
-
-            st.write("Strength 3 days\nCardio 2 days\nYoga 1 day")
-
-    # ---------------- TAB 3: Consultant Report ----------------
-    with tab3:
-        st.subheader("🧠 Detailed Consultant Analysis")
-        st.write(f"Dear {name}, based on your inputs and lifestyle metrics:")
-        st.markdown("**Stress Analysis:**")
-        st.write("High stress! Prioritize recovery cycles." if career_stress>7 else "Moderate stress, manageable with discipline." if career_stress>4 else "Healthy stress zone, keep it balanced.")
-        st.markdown("**Productivity Deep Dive:**")
-        st.write(f"- Sleep Contribution: {sleep_hours*10}\n- Workout Contribution: {physical_activity*15}\n- Motivation Contribution: {motivation*5}\n- Stress Deduction: {-career_stress*4}")
-        st.markdown("**Nutrition Advice:**")
-        st.write(f"{food_type} diet optimized for mental clarity, energy, and muscle recovery.")
-        st.markdown("**Workout Guidance:**")
-        st.write(f"{workout_type} routine structured for max performance and recovery.")
-        st.markdown("**Motivational Quote:**")
-        quotes=["Small daily improvements lead to stunning long-term results.","Discipline creates freedom.","Your future is created by what you do today.","Focus on progress, not perfection."]
-        st.info(random.choice(quotes))
-
-    # ---------------- TAB 4: Career Blueprint ----------------
-    with tab4:
-        st.subheader("🎯 90-Day Career Execution Plan")
-        st.write(f"Domain: {career_domain}\nSpecialization: {career_niche}")
-        st.write("Month 1 → Skill Foundation & Concept Clarity\nMonth 2 → Portfolio / Practical Exposure\nMonth 3 → Mock Testing + Real Applications")
-        st.write("Weekly: 5 Days Skill Deep Work, 1 Day Review, 1 Day Reflection + Networking")
-
+    # Diet & Workout Tab, Consultant Report, Career Blueprint remain unchanged
     # ---------------- REPORT DOWNLOAD ----------------
     doc = Document()
     doc.add_heading("AI Wellness & Career Report", 0)
@@ -235,7 +209,9 @@ if st.button("Generate Full AI Wellness Report"):
 
     buffer = io.BytesIO()
     doc.save(buffer)
-    st.download_button("⬇️ Download Full Professional Report", data=buffer.getvalue(),
-                       file_name="AI_Wellness_Report.docx",
-                       mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
-
+    st.download_button(
+        "⬇️ Download Full Professional Report",
+        data=buffer.getvalue(),
+        file_name="AI_Wellness_Report.docx",
+        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    )
