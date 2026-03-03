@@ -5,7 +5,6 @@ import pandas as pd
 import pickle
 from docx import Document
 import io
-import random
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -22,6 +21,7 @@ with open(MODEL_PATH, "rb") as f:
 
 with open(LE_PATH, "rb") as f:
     le = pickle.load(f)
+
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
     page_title="AI Wellness & Performance Analyzer",
@@ -39,6 +39,7 @@ st.header("📋 Enter Your Details")
 col1, col2 = st.columns(2)
 
 with col1:
+    name = st.text_input("Your Name")
     study_hours = st.number_input("Study Hours (per day)", 0, 12, 4)
     sleep_hours = st.number_input("Sleep Hours", 0, 12, 7)
     physical_activity = st.number_input("Physical Activity (hours)", 0, 4, 1)
@@ -52,9 +53,22 @@ with col2:
     motivation = st.slider("Motivation Level (1-10)", 1, 10, 7)
     water = st.number_input("Water Intake (liters)", 0.0, 5.0, 2.0, 0.1)
 
+    workout_type = st.selectbox(
+        "Preferred Workout Type",
+        ["Weight Loss", "Muscle Gain", "General Fitness", "Stress Relief"]
+    )
+
+    excel_field = st.selectbox(
+        "Field You Want To Excel In",
+        ["Academics", "AI/ML", "Coding", "Public Speaking", "Business", "Fitness"]
+    )
+
 st.markdown("---")
 
 if st.button("Generate Smart AI Report"):
+
+    st.balloons()
+    st.success("🎉 Your Personalized AI Report is Ready!")
 
     # -------- Prediction --------
     input_df = pd.DataFrame({
@@ -81,7 +95,7 @@ if st.button("Generate Smart AI Report"):
     else:
         bmi_status = "Obese"
 
-    # -------- Intelligent Scores --------
+    # -------- Scores --------
     productivity_score = int(
         (sleep_hours * 10) +
         (physical_activity * 15) +
@@ -97,179 +111,163 @@ if st.button("Generate Smart AI Report"):
     )
     mental_balance = max(0, min(mental_balance, 100))
 
-    # -------- Dynamic Book Recommendation --------
-    if stress_level == "High":
-        book_suggestions = [
-            "The Power of Now – Eckhart Tolle",
-            "Why Zebras Don't Get Ulcers – Robert Sapolsky",
-            "The Untethered Soul – Michael Singer"
+    burnout_risk = career_stress * 10 - sleep_hours * 5
+
+    # -------- Diet Plan --------
+    if bmi_status == "Underweight":
+        diet_plan = [
+            "Increase healthy carbs",
+            "Add nuts & peanut butter",
+            "Protein shake daily"
         ]
-    elif motivation < 5:
-        book_suggestions = [
-            "Atomic Habits – James Clear",
-            "Can't Hurt Me – David Goggins",
-            "The 5 AM Club – Robin Sharma"
-        ]
-    elif productivity_score > 75:
-        book_suggestions = [
-            "Deep Work – Cal Newport",
-            "Essentialism – Greg McKeown",
-            "The ONE Thing – Gary Keller"
+    elif bmi_status == "Overweight":
+        diet_plan = [
+            "High protein, low refined carbs",
+            "Avoid sugary drinks",
+            "Eat salad before meals"
         ]
     else:
-        book_suggestions = [
-            "Mindset – Carol Dweck",
-            "Grit – Angela Duckworth",
-            "The 7 Habits of Highly Effective People – Stephen Covey"
+        diet_plan = [
+            "Balanced diet",
+            "2 fruits daily",
+            "Stay hydrated"
         ]
 
-    # -------- Adaptive Quotes --------
-    if stress_level == "High":
-        quote = "Slow down. You don’t have to win every day to win in life."
-    elif motivation < 5:
-        quote = "Action creates motivation, not the other way around."
-    elif productivity_score > 75:
-        quote = "Mastery demands focus and consistency."
+    # -------- Workout Plan --------
+    if workout_type == "Weight Loss":
+        workout_plan = [
+            "30 min brisk walking",
+            "15 min HIIT",
+            "Core workout 3x/week"
+        ]
+    elif workout_type == "Muscle Gain":
+        workout_plan = [
+            "Push-Pull-Legs split",
+            "Progressive overload",
+            "Protein 1.5g/kg"
+        ]
+    elif workout_type == "Stress Relief":
+        workout_plan = [
+            "Yoga 20 mins daily",
+            "Deep breathing",
+            "Light stretching"
+        ]
     else:
-        quote = "Progress, not perfection."
+        workout_plan = [
+            "Full body workout 3x/week",
+            "Cardio 2x/week"
+        ]
 
-    # -------- Dashboard Tabs --------
+    # -------- Excellence Plan --------
+    if excel_field == "AI/ML":
+        excel_plan = [
+            "Study ML theory 2 hrs daily",
+            "Build 1 mini project weekly",
+            "Practice Kaggle problems"
+        ]
+    elif excel_field == "Coding":
+        excel_plan = [
+            "Solve 2 DSA problems daily",
+            "Build real projects",
+            "Contribute to GitHub"
+        ]
+    elif excel_field == "Business":
+        excel_plan = [
+            "Learn marketing basics",
+            "Read 1 business case weekly",
+            "Work on side hustle"
+        ]
+    else:
+        excel_plan = [
+            "Daily focused practice",
+            "Track weekly progress",
+            "Seek mentorship"
+        ]
+
+    # -------- Tabs --------
     tab1, tab2, tab3 = st.tabs([
         "📊 Overview",
-        "🧠 Mental Intelligence",
-        "🎯 Growth Strategy"
+        "🥗 Health & Fitness",
+        "🚀 Growth Strategy"
     ])
 
     # -------- TAB 1 --------
     with tab1:
-        st.subheader("Performance Overview")
+        st.subheader(f"Performance Overview - {name}")
         st.success(f"Predicted Stress Level: {stress_level}")
         st.write(f"BMI: {round(bmi,2)} ({bmi_status})")
 
         st.metric("Productivity Score", f"{productivity_score}/100")
-        st.progress(productivity_score / 100)
+        st.metric("Mental Balance", f"{mental_balance}/100")
 
-        st.metric("Mental Balance Score", f"{mental_balance}/100")
-        st.progress(mental_balance / 100)
+        if burnout_risk > 50:
+            st.error("⚠ High Burnout Risk Detected")
 
-        # -------- Radar Chart --------
-        categories = ["Sleep", "Activity", "Stress", "Motivation"]
-        values = [
-            sleep_hours * 10,
-            physical_activity * 20,
-            100 - (career_stress * 10),
-            motivation * 10
-        ]
+        if water < 1.5:
+            st.warning("Increase water intake to at least 2L daily.")
 
-        values += values[:1]
-        angles = np.linspace(0, 2 * np.pi, len(categories), endpoint=False).tolist()
-        angles += angles[:1]
+        # Bar Chart
+        scores = {
+            "Productivity": productivity_score,
+            "Mental Balance": mental_balance,
+            "Fitness": physical_activity * 25,
+            "Hydration": water * 20
+        }
 
-        fig, ax = plt.subplots(figsize=(5,5), subplot_kw=dict(polar=True))
-        ax.plot(angles, values)
-        ax.fill(angles, values, alpha=0.25)
-        ax.set_xticks(angles[:-1])
-        ax.set_xticklabels(categories)
-        ax.set_yticklabels([])
+        fig, ax = plt.subplots()
+        ax.bar(scores.keys(), scores.values())
+        ax.set_ylim(0, 100)
+        ax.set_ylabel("Score")
         st.pyplot(fig)
 
-        # -------- Colorful Bar Graph --------
-        st.markdown("### 📊 Performance Statistics (Visual Overview)")
-
-        labels = ["Productivity", "Mental Balance", "Stress Index"]
-        stress_numeric = 30 if stress_level == "Low" else 60 if stress_level == "Medium" else 90
-        values = [productivity_score, mental_balance, stress_numeric]
-        colors = ["#00C49F", "#0088FE", "#FF4B4B"]
+        # Pie Chart
+        time_data = {
+            "Study": study_hours,
+            "Sleep": sleep_hours,
+            "Social": social_hours,
+            "Physical": physical_activity
+        }
 
         fig2, ax2 = plt.subplots()
-        bars = ax2.bar(labels, values, color=colors)
-        ax2.set_ylim(0, 100)
-        ax2.set_ylabel("Score Level")
-        ax2.set_title("AI Wellness Score Breakdown")
-
-        for bar in bars:
-            height = bar.get_height()
-            ax2.text(bar.get_x() + bar.get_width()/2., height + 2,
-                     f'{int(height)}',
-                     ha='center', va='bottom')
-
+        ax2.pie(time_data.values(), labels=time_data.keys(), autopct='%1.1f%%')
+        ax2.set_title("Daily Time Distribution")
         st.pyplot(fig2)
 
     # -------- TAB 2 --------
     with tab2:
-        st.subheader("Mental Health Intelligence")
+        st.subheader("🥗 Smart Diet Plan")
+        for d in diet_plan:
+            st.write("•", d)
 
-        if stress_level == "High":
-            st.error("High stress detected. Prioritize recovery.")
-            st.write("• 10 minutes daily meditation")
-            st.write("• Reduce multitasking")
-            st.write("• Schedule digital detox")
-        elif stress_level == "Medium":
-            st.warning("Moderate stress. Improve balance.")
-            st.write("• Weekly reflection journaling")
-            st.write("• 30 mins daily exercise")
-            st.write("• Deep breathing exercises")
-        else:
-            st.success("Low stress. Maintain your system.")
-            st.write("• Continue structured routine")
-            st.write("• Challenge yourself with growth goals")
-
-        st.subheader("📚 Recommended Books For You")
-        for book in book_suggestions:
-            st.write("-", book)
-
-        st.subheader("💬 Insight")
-        st.info(quote)
+        st.subheader("🏋 Personalized Workout Plan")
+        for w in workout_plan:
+            st.write("•", w)
 
     # -------- TAB 3 --------
     with tab3:
-        st.subheader("Goal Focus Blueprint")
-
-        if productivity_score < 40:
-            st.write("• Start with 1 small daily habit.")
-            st.write("• Focus on consistency over intensity.")
-        elif productivity_score < 75:
-            st.write("• Use time blocking.")
-            st.write("• Remove 1 distraction daily.")
-        else:
-            st.write("• Enter deep work mode 2 hrs daily.")
-            st.write("• Build mastery in 1 core skill.")
-
-        st.subheader("7-Day Action Plan")
-        weekly_plan = [
-            "Day 1: Define your 30-day goal",
-            "Day 2: Deep Work (2 hours)",
-            "Day 3: Skill Practice",
-            "Day 4: Fitness + Reflection",
-            "Day 5: Productivity Sprint",
-            "Day 6: Learn + Implement",
-            "Day 7: Review & Reset"
-        ]
-
-        for day in weekly_plan:
-            st.write("-", day)
+        st.subheader("🚀 Excellence Blueprint")
+        for e in excel_plan:
+            st.write("•", e)
 
     # -------- DOCX REPORT --------
     doc = Document()
     doc.add_heading("AI Adaptive Wellness Report", 0)
+    doc.add_paragraph(f"Name: {name}")
     doc.add_paragraph(f"Stress Level: {stress_level}")
-    doc.add_paragraph(f"Productivity Score: {productivity_score}/100")
-    doc.add_paragraph(f"Mental Balance Score: {mental_balance}/100")
-    doc.add_paragraph("Recommended Books:")
-    for book in book_suggestions:
-        doc.add_paragraph(book, style="List Bullet")
+    doc.add_paragraph(f"Productivity Score: {productivity_score}")
+    doc.add_paragraph(f"Mental Balance: {mental_balance}")
+    doc.add_paragraph("Diet Plan:")
+    for d in diet_plan:
+        doc.add_paragraph(d, style="List Bullet")
 
     buffer = io.BytesIO()
     doc.save(buffer)
 
-    if st.download_button(
-        "⬇️ Download Smart Report (DOCX)",
+    st.download_button(
+        "⬇ Download Full AI Report",
         data=buffer.getvalue(),
-        file_name="AI_Smart_Wellness_Report.docx",
+        file_name="AI_Wellness_Report.docx",
         mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    ):
-        st.balloons()
-
-
+    )
 
 
