@@ -21,7 +21,7 @@ with open(MODEL_PATH, "rb") as f:
     model = pickle.load(f)
 
 with open(LE_PATH, "rb") as f:
-    le = pickle.load(f))
+    le = pickle.load(f)
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
@@ -184,6 +184,7 @@ if st.button("Generate Smart AI Report"):
         mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     ):
         st.balloons()
+
 
 
 
