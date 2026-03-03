@@ -6,7 +6,6 @@ import pickle
 from docx import Document
 import io
 import matplotlib.pyplot as plt
-import numpy as np
 
 # ---------------- LOAD MODEL ----------------
 import os
@@ -24,17 +23,17 @@ with open(LE_PATH, "rb") as f:
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
-    page_title="AI Wellness & Performance Analyzer",
+    page_title="AI Lifestyle & Career Consultant",
     page_icon="🧠",
     layout="wide"
 )
 
-st.title("🧠 AI Wellness & Performance Analyzer")
-st.markdown("### Adaptive Lifestyle Intelligence System")
+st.title("🧠 AI Lifestyle & Career Consultant")
+st.markdown("### Personalized Growth. Structured Strategy. Real Results.")
 st.markdown("---")
 
 # ---------------- INPUT SECTION ----------------
-st.header("📋 Enter Your Details")
+st.header("📋 Tell Me About Yourself")
 
 col1, col2 = st.columns(2)
 
@@ -53,24 +52,30 @@ with col2:
     motivation = st.slider("Motivation Level (1-10)", 1, 10, 7)
     water = st.number_input("Water Intake (liters)", 0.0, 5.0, 2.0, 0.1)
 
-    workout_type = st.selectbox(
-        "Preferred Workout Type",
+    diet_type = st.selectbox(
+        "Your Diet Preference",
+        ["Vegetarian", "Non-Vegetarian", "Vegan"]
+    )
+
+    workout_goal = st.selectbox(
+        "Preferred Workout Goal",
         ["Weight Loss", "Muscle Gain", "General Fitness", "Stress Relief"]
     )
 
     excel_field = st.selectbox(
         "Field You Want To Excel In",
-        ["Academics", "AI/ML", "Coding", "Public Speaking", "Business", "Fitness"]
+        ["AI/ML", "Coding", "Business", "Academics", "Public Speaking", "Fitness"]
     )
 
 st.markdown("---")
 
-if st.button("Generate Smart AI Report"):
+# ---------------- BUTTON ----------------
+if st.button("Generate My Personalized Consultant Report"):
 
     st.balloons()
-    st.success("🎉 Your Personalized AI Report is Ready!")
+    st.success("🎉 Your Personalized AI Consultant Report is Ready!")
 
-    # -------- Prediction --------
+    # ---------------- PREDICTION ----------------
     input_df = pd.DataFrame({
         "Study_Hours_Per_Day": [study_hours],
         "Extracurricular_Hours_Per_Day": [1],
@@ -83,7 +88,7 @@ if st.button("Generate Smart AI Report"):
     prediction = model.predict(input_df)
     stress_level = le.inverse_transform(prediction)[0]
 
-    # -------- BMI --------
+    # ---------------- BMI ----------------
     bmi = weight / ((height / 100) ** 2)
 
     if bmi < 18.5:
@@ -95,178 +100,204 @@ if st.button("Generate Smart AI Report"):
     else:
         bmi_status = "Obese"
 
-    # -------- Scores --------
-    productivity_score = int(
+    # ---------------- SCORES ----------------
+    productivity_score = max(0, min(int(
         (sleep_hours * 10) +
         (physical_activity * 15) +
         (motivation * 6) -
         (career_stress * 5)
-    )
-    productivity_score = max(0, min(productivity_score, 100))
+    ), 100))
 
-    mental_balance = int(
+    mental_balance = max(0, min(int(
         (sleep_hours * 12) +
         (water * 8) -
         (career_stress * 6)
-    )
-    mental_balance = max(0, min(mental_balance, 100))
+    ), 100))
 
     burnout_risk = career_stress * 10 - sleep_hours * 5
 
-    # -------- Diet Plan --------
-    if bmi_status == "Underweight":
-        diet_plan = [
-            "Increase healthy carbs",
-            "Add nuts & peanut butter",
-            "Protein shake daily"
-        ]
-    elif bmi_status == "Overweight":
-        diet_plan = [
-            "High protein, low refined carbs",
-            "Avoid sugary drinks",
-            "Eat salad before meals"
-        ]
-    else:
-        diet_plan = [
-            "Balanced diet",
-            "2 fruits daily",
-            "Stay hydrated"
-        ]
+    # ---------------- CONSULTANT MESSAGE ----------------
+    st.header("💬 Personal Consultant Message")
 
-    # -------- Workout Plan --------
-    if workout_type == "Weight Loss":
-        workout_plan = [
-            "30 min brisk walking",
-            "15 min HIIT",
-            "Core workout 3x/week"
-        ]
-    elif workout_type == "Muscle Gain":
-        workout_plan = [
-            "Push-Pull-Legs split",
-            "Progressive overload",
-            "Protein 1.5g/kg"
-        ]
-    elif workout_type == "Stress Relief":
-        workout_plan = [
-            "Yoga 20 mins daily",
-            "Deep breathing",
-            "Light stretching"
-        ]
-    else:
-        workout_plan = [
-            "Full body workout 3x/week",
-            "Cardio 2x/week"
-        ]
+    st.write(f"Dear {name if name else 'Champion'},")
+    st.write("""
+I’ve carefully analyzed your habits, stress levels, physical activity,
+and career ambitions. Below is your structured 90-day optimization plan.
+Let’s improve your life strategically — not randomly.
+""")
 
-    # -------- Excellence Plan --------
+    st.markdown("---")
+
+    # ---------------- HEALTH ANALYSIS ----------------
+    st.subheader("🩺 Health Analysis")
+
+    st.write(f"• BMI: **{round(bmi,2)} ({bmi_status})**")
+    st.write(f"• Predicted Stress Level: **{stress_level}**")
+    st.write(f"• Productivity Score: **{productivity_score}/100**")
+    st.write(f"• Mental Balance Score: **{mental_balance}/100**")
+
+    if burnout_risk > 50:
+        st.error("⚠ I’m concerned. Your burnout risk is high. Recovery must be prioritized.")
+
+    # ---------------- DIET PLAN ----------------
+    st.subheader("🥗 Structured Diet Plan")
+
+    if diet_type == "Vegetarian":
+        diet_plan = """
+Morning: Warm water + soaked almonds  
+Breakfast: Oats / Paneer + roti  
+Lunch: Dal + 2 roti + sabzi + salad  
+Evening: Green tea + roasted chana  
+Dinner: Light khichdi / paneer bhurji  
+Avoid fried & excess sugar  
+"""
+    elif diet_type == "Non-Vegetarian":
+        diet_plan = """
+Breakfast: Eggs + brown bread  
+Lunch: Grilled chicken/fish + rice + veggies  
+Evening: Fruit + nuts  
+Dinner: Soup + boiled eggs  
+Maintain high protein intake  
+"""
+    else:
+        diet_plan = """
+Breakfast: Smoothie (banana + peanut butter + soy milk)  
+Lunch: Brown rice + tofu + veggies  
+Evening: Mixed seeds  
+Dinner: Lentil soup + salad  
+Ensure B12 supplementation  
+"""
+
+    st.write(diet_plan)
+
+    # ---------------- WORKOUT PLAN ----------------
+    st.subheader("🏋 Structured Weekly Workout Plan")
+
+    if workout_goal == "Weight Loss":
+        workout_plan = """
+5 days brisk walking (30 mins)  
+3 days bodyweight circuit training  
+1 day stretching  
+"""
+    elif workout_goal == "Muscle Gain":
+        workout_plan = """
+Day 1: Chest & Triceps  
+Day 2: Back & Biceps  
+Day 3: Legs  
+Progressive overload weekly  
+Protein 1.5g per kg body weight  
+"""
+    elif workout_goal == "Stress Relief":
+        workout_plan = """
+Daily 20 mins yoga  
+Breathing exercises morning & night  
+Evening phone-free walk  
+"""
+    else:
+        workout_plan = """
+3x Full body workout  
+2x Cardio  
+1x Mobility training  
+"""
+
+    st.write(workout_plan)
+
+    # ---------------- CAREER ROADMAP ----------------
+    st.subheader("🚀 90-Day Career Roadmap")
+
     if excel_field == "AI/ML":
-        excel_plan = [
-            "Study ML theory 2 hrs daily",
-            "Build 1 mini project weekly",
-            "Practice Kaggle problems"
-        ]
+        roadmap = """
+Weeks 1–4: Strengthen Python, Numpy, Pandas  
+Weeks 5–8: Build 2 ML projects  
+Weeks 9–12: Deploy app + Kaggle participation  
+Weekly Time: 15–20 hours  
+"""
     elif excel_field == "Coding":
-        excel_plan = [
-            "Solve 2 DSA problems daily",
-            "Build real projects",
-            "Contribute to GitHub"
-        ]
+        roadmap = """
+Weeks 1–4: DSA basics (Arrays, Recursion)  
+Weeks 5–8: Trees, Graphs, Mock Interviews  
+Weeks 9–12: Full-stack project deployment  
+Weekly Time: 12–15 hours  
+"""
     elif excel_field == "Business":
-        excel_plan = [
-            "Learn marketing basics",
-            "Read 1 business case weekly",
-            "Work on side hustle"
-        ]
+        roadmap = """
+Weeks 1–4: Marketing fundamentals  
+Weeks 5–8: Start small online project  
+Weeks 9–12: Analyze metrics & optimize  
+Weekly Time: 10–15 hours  
+"""
     else:
-        excel_plan = [
-            "Daily focused practice",
-            "Track weekly progress",
-            "Seek mentorship"
-        ]
+        roadmap = """
+Phase 1: Skill Building  
+Phase 2: Real-world application  
+Phase 3: Optimization & consistency  
+"""
 
-    # -------- Tabs --------
-    tab1, tab2, tab3 = st.tabs([
-        "📊 Overview",
-        "🥗 Health & Fitness",
-        "🚀 Growth Strategy"
-    ])
+    st.write(roadmap)
 
-    # -------- TAB 1 --------
-    with tab1:
-        st.subheader(f"Performance Overview - {name}")
-        st.success(f"Predicted Stress Level: {stress_level}")
-        st.write(f"BMI: {round(bmi,2)} ({bmi_status})")
+    # ---------------- WEEKLY TIME CHART ----------------
+    st.subheader("⏳ Weekly Preparation Time Allocation")
 
-        st.metric("Productivity Score", f"{productivity_score}/100")
-        st.metric("Mental Balance", f"{mental_balance}/100")
+    time_data = {
+        "Skill Practice": 8,
+        "Project Work": 5,
+        "Revision": 3,
+        "Networking": 2
+    }
 
-        if burnout_risk > 50:
-            st.error("⚠ High Burnout Risk Detected")
+    fig, ax = plt.subplots()
+    ax.bar(time_data.keys(), time_data.values())
+    ax.set_ylabel("Hours per Week")
+    st.pyplot(fig)
 
-        if water < 1.5:
-            st.warning("Increase water intake to at least 2L daily.")
+    # ---------------- LIFESTYLE SCORE CHART ----------------
+    st.subheader("📊 Lifestyle Score Overview")
 
-        # Bar Chart
-        scores = {
-            "Productivity": productivity_score,
-            "Mental Balance": mental_balance,
-            "Fitness": physical_activity * 25,
-            "Hydration": water * 20
-        }
+    scores = {
+        "Productivity": productivity_score,
+        "Mental Balance": mental_balance,
+        "Fitness": physical_activity * 25
+    }
 
-        fig, ax = plt.subplots()
-        ax.bar(scores.keys(), scores.values())
-        ax.set_ylim(0, 100)
-        ax.set_ylabel("Score")
-        st.pyplot(fig)
+    fig2, ax2 = plt.subplots()
+    ax2.bar(scores.keys(), scores.values())
+    ax2.set_ylim(0, 100)
+    st.pyplot(fig2)
 
-        # Pie Chart
-        time_data = {
-            "Study": study_hours,
-            "Sleep": sleep_hours,
-            "Social": social_hours,
-            "Physical": physical_activity
-        }
+    # ---------------- FINAL MOTIVATION ----------------
+    st.markdown("---")
+    st.subheader("💡 Final Message")
 
-        fig2, ax2 = plt.subplots()
-        ax2.pie(time_data.values(), labels=time_data.keys(), autopct='%1.1f%%')
-        ax2.set_title("Daily Time Distribution")
-        st.pyplot(fig2)
+    if productivity_score > 75:
+        final_quote = "You’re operating at high potential. Now execute with discipline."
+    elif stress_level == "High":
+        final_quote = "Growth is powerful, but balance is wisdom. Protect your energy."
+    else:
+        final_quote = "Consistency beats intensity. Show up daily."
 
-    # -------- TAB 2 --------
-    with tab2:
-        st.subheader("🥗 Smart Diet Plan")
-        for d in diet_plan:
-            st.write("•", d)
+    st.info(f"✨ {final_quote}")
 
-        st.subheader("🏋 Personalized Workout Plan")
-        for w in workout_plan:
-            st.write("•", w)
-
-    # -------- TAB 3 --------
-    with tab3:
-        st.subheader("🚀 Excellence Blueprint")
-        for e in excel_plan:
-            st.write("•", e)
-
-    # -------- DOCX REPORT --------
+    # ---------------- DOCX REPORT ----------------
     doc = Document()
-    doc.add_heading("AI Adaptive Wellness Report", 0)
+    doc.add_heading("AI Personalized Consultant Report", 0)
     doc.add_paragraph(f"Name: {name}")
     doc.add_paragraph(f"Stress Level: {stress_level}")
-    doc.add_paragraph(f"Productivity Score: {productivity_score}")
-    doc.add_paragraph(f"Mental Balance: {mental_balance}")
+    doc.add_paragraph(f"BMI: {round(bmi,2)} ({bmi_status})")
     doc.add_paragraph("Diet Plan:")
-    for d in diet_plan:
-        doc.add_paragraph(d, style="List Bullet")
+    doc.add_paragraph(diet_plan)
+    doc.add_paragraph("Workout Plan:")
+    doc.add_paragraph(workout_plan)
+    doc.add_paragraph("Career Roadmap:")
+    doc.add_paragraph(roadmap)
+    doc.add_paragraph(f"Final Motivation: {final_quote}")
 
     buffer = io.BytesIO()
     doc.save(buffer)
 
     st.download_button(
-        "⬇ Download Full AI Report",
+        "⬇ Download Full Consultant Report",
         data=buffer.getvalue(),
-        file_name="AI_Wellness_Report.docx",
+        file_name="AI_Consultant_Report.docx",
         mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     )
 
