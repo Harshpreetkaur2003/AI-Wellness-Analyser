@@ -195,5 +195,4 @@ if st.button("Generate Full AI Wellness Report"):
         fig_surface.update_layout(template="plotly_dark", height=500, scene=dict(xaxis_title="Sleep Hours", yaxis_title="Workout Hours", zaxis_title="Performance Potential"), title="Lifestyle-Performance Simulation")
         st.plotly_chart(fig_surface,use_container_width=True)
 
-    # ---------------- TAB 2-4 same as previous ----------------
-    # (Keep rest of the code unchanged: diet/workout tab, consultant report, career blueprint, and report download)
+
