@@ -1,3 +1,4 @@
+
 # app.py
 
 import streamlit as st
@@ -10,6 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import os
+import string
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
@@ -18,12 +20,12 @@ st.set_page_config(
     layout="wide"
 )
 
-# ---------------- BACKGROUND IMAGE + DARK THEME ----------------
+# ---------------- DARK BACKGROUND IMAGE ----------------
 st.markdown(
     """
     <style>
     .stApp {
-        background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
+        background: url('https://images.unsplash.com/photo-1492724441997-5dc865305da7?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
         background-size: cover;
         color: white;
     }
@@ -31,7 +33,7 @@ st.markdown(
         color: #00F5FF;
     }
     .glass {
-        background: rgba(0,0,0,0.4);
+        background: rgba(0,0,0,0.5);
         padding: 20px;
         border-radius: 15px;
         backdrop-filter: blur(10px);
@@ -41,6 +43,49 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
+# ---------------- SESSION STATE ----------------
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+
+if "generated_otp" not in st.session_state:
+    st.session_state.generated_otp = ''.join(random.choices(string.digits, k=4))
+
+# ---------------- LOGIN SYSTEM ----------------
+if not st.session_state.authenticated:
+
+    st.title("🔐 Secure Access Portal")
+    login_type = st.radio("Choose Authentication Method", 
+                          ["Secret Passphrase", "Dynamic OTP Login"])
+
+    # -------- OPTION 1: SECRET PASSPHRASE --------
+    if login_type == "Secret Passphrase":
+        passphrase = st.text_input("Enter Secret Passphrase", type="password")
+
+        if st.button("Login"):
+            if passphrase == "UnlockMyWellnessAI":
+                st.session_state.authenticated = True
+                st.success("✅ Access Granted!")
+                st.rerun()
+            else:
+                st.error("❌ Incorrect Passphrase")
+
+    # -------- OPTION 2: OTP LOGIN --------
+    elif login_type == "Dynamic OTP Login":
+
+        st.info(f"Your One-Time Code: {st.session_state.generated_otp}")
+
+        otp_input = st.text_input("Enter the OTP above")
+
+        if st.button("Verify OTP"):
+            if otp_input == st.session_state.generated_otp:
+                st.session_state.authenticated = True
+                st.success("✅ OTP Verified! Access Granted.")
+                st.rerun()
+            else:
+                st.error("❌ Invalid OTP")
+
+    st.stop()
 
 st.title("🧠 AI Wellness & Performance Analyzer")
 st.markdown("### Smart Lifestyle • Stress Prediction • Fitness • Career Blueprint")
@@ -244,4 +289,5 @@ if st.button("Generate Full AI Wellness Report"):
     # You can keep the previous detailed diet, workout, career blueprint, 90-day plan
     # and charts (bar chart for weekly hours, radar replaced by more attractive visuals)
     # All existing code remains as per previous updates.
+
 
