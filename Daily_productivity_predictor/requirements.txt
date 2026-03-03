@@ -4,3 +4,5 @@ numpy
 matplotlib
 python-docx
 scikit-learn
+plotly
+dash
