@@ -6,20 +6,14 @@ import pickle
 from docx import Document
 import io
 import random
+import matplotlib.pyplot as plt
+import numpy as np
 
 # ---------------- LOAD MODEL ----------------
-# ---------------- LOAD MODEL (FIXED FOR STREAMLIT CLOUD) ----------------
-import os
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-MODEL_PATH = os.path.join(BASE_DIR, "models", "productivity_model.pkl")
-LE_PATH = os.path.join(BASE_DIR, "models", "label_encoder.pkl")
-
-with open(MODEL_PATH, "rb") as f:
+with open("models/productivity_model.pkl", "rb") as f:
     model = pickle.load(f)
 
-with open(LE_PATH, "rb") as f:
+with open("models/label_encoder.pkl", "rb") as f:
     le = pickle.load(f)
 
 # ---------------- PAGE CONFIG ----------------
@@ -52,8 +46,10 @@ with col2:
     career_stress = st.slider("Career/Study Stress (1-10)", 1, 10, 5)
     motivation = st.slider("Motivation Level (1-10)", 1, 10, 7)
     water = st.number_input("Water Intake (liters)", 0.0, 5.0, 2.0, 0.1)
-    food_type = st.selectbox("Type of Food You Eat",
-                             ["Vegetarian", "Non-Vegetarian", "Vegan"])
+    food_type = st.selectbox(
+        "Type of Food You Eat",
+        ["Vegetarian", "Non-Vegetarian", "Vegan"]
+    )
     want_diet = st.radio("Do you want a personalized diet plan?", ["Yes", "No"])
 
 st.markdown("---")
@@ -96,30 +92,28 @@ if st.button("Generate Full AI Wellness Report"):
     else:
         bmi_status = "Obese"
 
-    # -------- Health Analysis --------
-    analysis = []
+    # -------- ADVANCED SCORES --------
+    productivity_score = int(
+        (sleep_hours * 10) +
+        (physical_activity * 15) +
+        (motivation * 5) -
+        (career_stress * 4)
+    )
+    productivity_score = max(0, min(productivity_score, 100))
 
-    if sleep_hours < 6:
-        analysis.append("⚠️ Sleep is below optimal level. Improve sleep hygiene.")
-    else:
-        analysis.append("✅ Sleep duration is healthy.")
+    health_score = int(
+        (100 - abs(22 - bmi) * 5) +
+        (physical_activity * 10) +
+        (water * 5)
+    )
+    health_score = max(0, min(health_score, 100))
 
-    if physical_activity < 1:
-        analysis.append("⚠️ Increase physical activity for better energy and focus.")
-    else:
-        analysis.append("✅ Physical activity level is good.")
-
-    if water < 2:
-        analysis.append("⚠️ Increase hydration to 2–3 liters daily.")
-    else:
-        analysis.append("✅ Hydration level is adequate.")
-
-    if stress_level == "High":
-        analysis.append("🚨 High stress detected. Implement structured breaks & mindfulness.")
-    elif stress_level == "Medium":
-        analysis.append("⚡ Moderate stress. Maintain balanced routine.")
-    else:
-        analysis.append("🌿 Low stress. Keep maintaining healthy habits.")
+    # -------- Burnout Risk --------
+    burnout_risk = "Low"
+    if career_stress > 7 and sleep_hours < 6:
+        burnout_risk = "High"
+    elif career_stress > 5:
+        burnout_risk = "Moderate"
 
     # -------- GENERAL DIET --------
     general_diet = [
@@ -132,7 +126,6 @@ if st.button("Generate Full AI Wellness Report"):
 
     # -------- PERSONALIZED DIET --------
     personalized_diet = []
-
     if want_diet == "Yes":
 
         if food_type == "Vegetarian":
@@ -206,58 +199,122 @@ if st.button("Generate Full AI Wellness Report"):
             "1 Day Complete Rest"
         ]
 
-    # -------- DISPLAY --------
-    st.header("📊 AI Wellness Summary")
-    st.subheader(f"Predicted Stress Level: {stress_level}")
-    st.write(f"Your BMI: {round(bmi,2)} ({bmi_status})")
-
-    st.subheader("🔎 Health Analysis")
-    for a in analysis:
-        st.write("-", a)
-
-    st.subheader("🏋️ Weekly Workout Plan")
-    for w in workout_plan:
-        st.write("-", w)
-
-    # -------- Diet Display --------
-    if want_diet == "Yes":
-        st.markdown("## 🥗 ⭐ PERSONALIZED DIET PLAN ⭐")
-        for d in personalized_diet:
-            st.write("-", d)
-    else:
-        st.markdown("## 🥗 General Healthy Diet Plan")
-        for d in general_diet:
-            st.write("-", d)
-
-    # -------- Motivation --------
-    st.subheader("🔥 Motivation & Growth Guidance")
-    quote = random.choice([
-        "Success is built daily, not in a day.",
-        "Discipline beats motivation.",
-        "Your future self is watching you right now."
+    # ---------------- DASHBOARD ----------------
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([
+        "📊 AI Dashboard",
+        "🏋️ Workout Plan",
+        "🥗 Nutrition",
+        "🧠 Mental Health",
+        "📅 Weekly Growth Plan"
     ])
-    st.write("💬", quote)
 
-    # -------- Word Report --------
+    # TAB 1
+    with tab1:
+        st.subheader("Stress Prediction")
+        st.success(f"Predicted Stress Level: {stress_level}")
+        st.write(f"BMI: {round(bmi,2)} ({bmi_status})")
+
+        colA, colB = st.columns(2)
+
+        with colA:
+            st.metric("Productivity Score", f"{productivity_score}/100")
+            st.progress(productivity_score / 100)
+
+        with colB:
+            st.metric("Health Score", f"{health_score}/100")
+            st.progress(health_score / 100)
+
+        st.subheader("Burnout Risk")
+        if burnout_risk == "High":
+            st.error("🚨 High Burnout Risk")
+        elif burnout_risk == "Moderate":
+            st.warning("⚠️ Moderate Burnout Risk")
+        else:
+            st.success("✅ Low Burnout Risk")
+
+        # Radar Chart
+        categories = ["Sleep", "Activity", "Stress", "Motivation", "Hydration"]
+        values = [
+            sleep_hours * 10,
+            physical_activity * 20,
+            100 - (career_stress * 10),
+            motivation * 10,
+            water * 20
+        ]
+
+        values += values[:1]
+        angles = np.linspace(0, 2 * np.pi, len(categories), endpoint=False).tolist()
+        angles += angles[:1]
+
+        fig, ax = plt.subplots(figsize=(6,6), subplot_kw=dict(polar=True))
+        ax.plot(angles, values)
+        ax.fill(angles, values, alpha=0.25)
+        ax.set_xticks(angles[:-1])
+        ax.set_xticklabels(categories)
+        ax.set_yticklabels([])
+        st.pyplot(fig)
+
+    # TAB 2
+    with tab2:
+        st.subheader("Weekly Workout Plan")
+        for w in workout_plan:
+            st.write("-", w)
+
+    # TAB 3
+    with tab3:
+        if want_diet == "Yes":
+            st.subheader("⭐ Personalized Diet Plan")
+            for d in personalized_diet:
+                st.write("-", d)
+        else:
+            st.subheader("General Healthy Diet Plan")
+            for d in general_diet:
+                st.write("-", d)
+
+    # TAB 4
+    with tab4:
+        st.subheader("Mental Health Suggestions")
+        if career_stress > 7:
+            st.write("• Practice daily meditation (10 mins)")
+            st.write("• Use Pomodoro technique")
+        if sleep_hours < 6:
+            st.write("• Maintain fixed sleep schedule")
+        if motivation < 5:
+            st.write("• Break goals into smaller tasks")
+
+    # TAB 5
+    with tab5:
+        st.subheader("7-Day Growth Plan")
+        weekly_plan = [
+            "Day 1: Plan goals & schedule",
+            "Day 2: Deep work session",
+            "Day 3: Cardio + Skill learning",
+            "Day 4: Strength training",
+            "Day 5: Focused productivity block",
+            "Day 6: Reflection",
+            "Day 7: Full rest"
+        ]
+        for day in weekly_plan:
+            st.write("-", day)
+
+    # ---------------- DOCX REPORT ----------------
     doc = Document()
     doc.add_heading("AI Wellness & Performance Report", 0)
     doc.add_paragraph(f"Stress Level: {stress_level}")
     doc.add_paragraph(f"BMI: {round(bmi,2)} ({bmi_status})")
+    doc.add_paragraph(f"Productivity Score: {productivity_score}/100")
+    doc.add_paragraph(f"Health Score: {health_score}/100")
+    doc.add_paragraph(f"Burnout Risk: {burnout_risk}")
 
-    doc.add_heading("Health Analysis", level=1)
-    for a in analysis:
-        doc.add_paragraph(a, style="List Bullet")
-
-    doc.add_heading("Weekly Workout Plan", level=1)
+    doc.add_heading("Workout Plan", level=1)
     for w in workout_plan:
         doc.add_paragraph(w, style="List Bullet")
 
+    doc.add_heading("Diet Plan", level=1)
     if want_diet == "Yes":
-        doc.add_heading("Personalized Diet Plan", level=1)
         for d in personalized_diet:
             doc.add_paragraph(d, style="List Bullet")
     else:
-        doc.add_heading("General Diet Plan", level=1)
         for d in general_diet:
             doc.add_paragraph(d, style="List Bullet")
 
@@ -269,5 +326,5 @@ if st.button("Generate Full AI Wellness Report"):
         data=buffer.getvalue(),
         file_name="AI_Wellness_Report.docx",
         mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-
     )
+
