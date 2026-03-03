@@ -5,10 +5,11 @@ import pandas as pd
 import pickle
 from docx import Document
 import io
-import os
+import random
 import numpy as np
+import matplotlib.pyplot as plt
 import plotly.graph_objects as go
-import plotly.express as px
+import os
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
@@ -17,21 +18,29 @@ st.set_page_config(
     layout="wide"
 )
 
-# ---------------- PREMIUM GRADIENT DARK UI ----------------
-st.markdown("""
-<style>
-.stApp {
-    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-    color: white;
-}
-h1, h2, h3 {
-    color: #00F5FF;
-}
-div[data-testid="stMetricValue"] {
-    color: #00F5FF;
-}
-</style>
-""", unsafe_allow_html=True)
+# ---------------- BACKGROUND IMAGE + DARK THEME ----------------
+st.markdown(
+    """
+    <style>
+    .stApp {
+        background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
+        background-size: cover;
+        color: white;
+    }
+    h1, h2, h3 {
+        color: #00F5FF;
+    }
+    .glass {
+        background: rgba(0,0,0,0.4);
+        padding: 20px;
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+        margin-bottom: 20px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 st.title("🧠 AI Wellness & Performance Analyzer")
 st.markdown("### Smart Lifestyle • Stress Prediction • Fitness • Career Blueprint")
@@ -39,7 +48,6 @@ st.markdown("---")
 
 # ---------------- LOAD MODEL ----------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
 MODEL_PATH = os.path.join(BASE_DIR, "models", "productivity_model.pkl")
 LE_PATH = os.path.join(BASE_DIR, "models", "label_encoder.pkl")
 
@@ -49,49 +57,45 @@ with open(MODEL_PATH, "rb") as f:
 with open(LE_PATH, "rb") as f:
     le = pickle.load(f)
 
-# ---------------- TABS ----------------
-tab1, tab2, tab3 = st.tabs(["📋 Input", "📊 Analytics", "📄 Report"])
+# ---------------- INPUT SECTION ----------------
+st.header("📋 Enter Your Details")
 
-# ---------------- INPUT TAB ----------------
-with tab1:
+name = st.text_input("Your Name")
 
-    st.header("Enter Your Details")
+col1, col2 = st.columns(2)
+with col1:
+    study_hours = st.number_input("Study Hours (per day)", 0, 12, 4)
+    sleep_hours = st.number_input("Sleep Hours", 0, 12, 7)
+    physical_activity = st.number_input("Workout Hours", 0, 4, 1)
+    social_hours = st.number_input("Social Hours", 0, 6, 2)
+    gpa = st.number_input("GPA", 0.0, 10.0, 8.0, 0.1)
+    weight = st.number_input("Weight (kg)", 30, 200, 65)
+    height = st.number_input("Height (cm)", 100, 220, 165)
 
-    name = st.text_input("Your Name")
+with col2:
+    career_stress = st.slider("Career Stress (1-10)", 1, 10, 5)
+    motivation = st.slider("Motivation Level (1-10)", 1, 10, 7)
+    water = st.number_input("Water Intake (liters)", 0.0, 5.0, 2.0, 0.1)
+    food_type = st.selectbox("Diet Preference", ["Vegetarian", "Non-Vegetarian", "Vegan"])
+    workout_type = st.selectbox("Workout Preference",
+        ["Gym Training", "Home Workout", "Yoga Only", "Cardio Focus", "Mixed Routine"])
 
-    col1, col2 = st.columns(2)
+st.markdown("---")
+st.header("🎯 Career Direction")
 
-    with col1:
-        study_hours = st.number_input("Study Hours (per day)", 0, 12, 4)
-        sleep_hours = st.number_input("Sleep Hours", 0, 12, 7)
-        physical_activity = st.number_input("Workout Hours", 0, 4, 1)
-        social_hours = st.number_input("Social Hours", 0, 6, 2)
-        gpa = st.number_input("GPA", 0.0, 10.0, 8.0, 0.1)
-        weight = st.number_input("Weight (kg)", 30, 200, 65)
-        height = st.number_input("Height (cm)", 100, 220, 165)
+career_domain = st.selectbox(
+    "Select Career Domain",
+    ["Management", "IT & Data", "Government Exams", "Creative Field", "Entrepreneurship"]
+)
+career_niche = st.text_input("Specific Niche (Example: Data Science, MBA Finance, UPSC, UI/UX)")
+st.markdown("---")
 
-    with col2:
-        career_stress = st.slider("Career Stress (1-10)", 1, 10, 5)
-        motivation = st.slider("Motivation Level (1-10)", 1, 10, 7)
-        water = st.number_input("Water Intake (liters)", 0.0, 5.0, 2.0, 0.1)
-        food_type = st.selectbox("Diet Preference", ["Vegetarian", "Non-Vegetarian", "Vegan"])
-        workout_type = st.selectbox("Workout Preference",
-            ["Gym Training", "Home Workout", "Yoga Only", "Cardio Focus", "Mixed Routine"])
-
-    career_domain = st.selectbox(
-        "Select Career Domain",
-        ["Management", "IT & Data", "Government Exams", "Creative Field", "Entrepreneurship"]
-    )
-
-    career_niche = st.text_input("Specific Niche (Example: Data Science, MBA Finance, UPSC)")
-
-    generate = st.button("Generate Full AI Report")
-
-# ---------------- PROCESS LOGIC ----------------
-if generate:
+# ---------------- GENERATE REPORT ----------------
+if st.button("Generate Full AI Wellness Report"):
 
     st.balloons()
 
+    # -------- ML Prediction --------
     input_df = pd.DataFrame({
         "Study_Hours_Per_Day": [study_hours],
         "Extracurricular_Hours_Per_Day": [1],
@@ -104,134 +108,134 @@ if generate:
     prediction = model.predict(input_df)
     stress_level = le.inverse_transform(prediction)[0]
 
+    # -------- KPI Metrics --------
     bmi = weight / ((height / 100) ** 2)
-
-    productivity_score = int((sleep_hours * 10) +
-                             (physical_activity * 15) +
-                             (motivation * 5) -
-                             (career_stress * 4))
+    productivity_score = int((sleep_hours * 10) + (physical_activity * 15) + (motivation * 5) - (career_stress * 4))
     productivity_score = max(0, min(productivity_score, 100))
-
-    health_score = int((100 - abs(22 - bmi) * 5) +
-                       (physical_activity * 10) +
-                       (water * 5))
+    health_score = int((100 - abs(22 - bmi) * 5) + (physical_activity * 10) + (water * 5))
     health_score = max(0, min(health_score, 100))
 
-    # ---------------- ANALYTICS TAB ----------------
+    st.markdown(f"## 💬 Dear {name}, Here Is Your Detailed AI Analysis")
+    colA, colB, colC = st.columns(3)
+    colA.metric("Stress Level", stress_level)
+    colB.metric("Productivity Score", f"{productivity_score}/100")
+    colC.metric("Health Score", f"{health_score}/100")
+
+    st.progress(productivity_score / 100)
+
+    # ---------------- TABS ----------------
+    tab1, tab2, tab3, tab4 = st.tabs([
+        "📊 Analytics",
+        "🥗 Diet & Workout",
+        "🧠 Detailed Consultant Report",
+        "🎯 Career Blueprint"
+    ])
+
+    # ---------------- TAB 1: Analytics ----------------
+    with tab1:
+        st.subheader("📈 Lifestyle & Performance Overview")
+
+        # Bar + Line combo
+        factors = ["Sleep", "Workout", "Motivation", "Stress Impact"]
+        values = [
+            sleep_hours * 10,
+            physical_activity * 15,
+            motivation * 5,
+            -career_stress * 4
+        ]
+        fig_combo = go.Figure()
+        fig_combo.add_trace(go.Bar(x=factors, y=values, name="Impact Contribution", marker_color="#00F5FF"))
+        fig_combo.add_trace(go.Scatter(x=factors, y=np.cumsum(values), mode="lines+markers", name="Cumulative Effect", line=dict(color="#FF2E63")))
+        fig_combo.update_layout(template="plotly_dark", height=400, title="Factor Contribution & Cumulative Curve")
+        st.plotly_chart(fig_combo, use_container_width=True)
+
+        # Donut chart
+        st.subheader("⚖ Daily Life Balance")
+        balance_data = {"Study": study_hours, "Sleep": sleep_hours, "Workout": physical_activity, "Social": social_hours}
+        fig_donut = go.Figure(data=[go.Pie(labels=list(balance_data.keys()), values=list(balance_data.values()), hole=0.6)])
+        fig_donut.update_layout(template="plotly_dark", height=400, title="Daily Balance Ratio")
+        st.plotly_chart(fig_donut, use_container_width=True)
+
+        # 3D Surface
+        st.subheader("🧠 Predictive 3D Performance Surface")
+        x = np.linspace(4, 10, 20)
+        y = np.linspace(1, 6, 20)
+        X, Y = np.meshgrid(x, y)
+        Z = (X * 8) + (Y * 12)
+        fig_surface = go.Figure(data=[go.Surface(z=Z, x=X, y=Y)])
+        fig_surface.update_layout(template="plotly_dark", height=500, scene=dict(xaxis_title="Sleep Hours", yaxis_title="Workout Hours", zaxis_title="Performance Potential"), title="Lifestyle-Performance Simulation")
+        st.plotly_chart(fig_surface, use_container_width=True)
+
+    # ---------------- TAB 2: Diet & Workout ----------------
     with tab2:
-
-        st.header(f"Dear {name}, Here Is Your Performance Dashboard")
-
-        colA, colB, colC = st.columns(3)
-        colA.metric("Stress Level", stress_level)
-        colB.metric("Productivity", f"{productivity_score}/100")
-        colC.metric("Health Score", f"{health_score}/100")
-
-        st.markdown("---")
-
-        # INTERACTIVE BAR GRAPH
-        fig_bar = go.Figure()
-
-        fig_bar.add_trace(go.Bar(
-            x=["Productivity", "Health"],
-            y=[productivity_score, health_score],
-            text=[productivity_score, health_score],
-            textposition="auto"
-        ))
-
-        fig_bar.update_layout(
-            template="plotly_dark",
-            height=400,
-            title="Overall Score Comparison"
-        )
-
-        st.plotly_chart(fig_bar, use_container_width=True)
-
-        # 3D GRAPH
-        fig_3d = go.Figure(data=[go.Scatter3d(
-            x=[sleep_hours],
-            y=[study_hours],
-            z=[productivity_score],
-            mode='markers',
-            marker=dict(
-                size=10,
-                color=productivity_score,
-                colorscale='Viridis'
-            )
-        )])
-
-        fig_3d.update_layout(
-            template="plotly_dark",
-            height=500,
-            scene=dict(
-                xaxis_title="Sleep Hours",
-                yaxis_title="Study Hours",
-                zaxis_title="Productivity Score"
-            ),
-            title="3D Lifestyle Impact View"
-        )
-
-        st.plotly_chart(fig_3d, use_container_width=True)
-
-    # ---------------- REPORT TAB ----------------
-    with tab3:
-
-        st.header("Detailed Consultant Report")
-
-        st.subheader("🥗 Nutrition Plan")
-
+        st.subheader("🥗 Personalized Nutrition")
         if food_type == "Vegetarian":
-            st.write("High protein vegetarian structure with paneer, lentils, oats.")
+            st.write("Breakfast: Oats + Milk + Almonds\nLunch: Dal + Brown Rice + Paneer\nEvening: Fruits + Nuts\nDinner: Light Roti + Vegetables")
         elif food_type == "Vegan":
-            st.write("Plant protein rotation with tofu, quinoa, seeds.")
+            st.write("Breakfast: Peanut Butter Smoothie\nLunch: Quinoa + Chickpeas\nSnack: Seeds Mix\nDinner: Tofu + Vegetables")
         else:
-            st.write("Lean protein cycle: eggs, chicken, fish with controlled carbs.")
+            st.write("Breakfast: Eggs + Toast\nLunch: Grilled Chicken + Rice\nSnack: Yogurt\nDinner: Fish + Salad")
 
-        st.subheader("🏋 Weekly Workout Plan")
-
+        st.subheader("🏋 Structured Weekly Workout Plan")
         if workout_type == "Gym Training":
-            st.write("Push-Pull-Legs split with progressive overload.")
+            st.write("Mon: Chest + Triceps\nTue: Back + Biceps\nWed: Legs\nThu: Shoulders\nFri: Core + HIIT")
         elif workout_type == "Home Workout":
-            st.write("Bodyweight hypertrophy + core focus.")
+            st.write("Pushups 3x15\nSquats 3x20\nPlank 3x60 sec\nJump Rope 10 min")
         elif workout_type == "Yoga Only":
-            st.write("Flexibility + breath control + mindfulness.")
+            st.write("Surya Namaskar 10 rounds\nPranayama 15 min\nMeditation 20 min")
         elif workout_type == "Cardio Focus":
-            st.write("Fat loss + endurance training model.")
+            st.write("Running 30 min\nCycling 20 min\nHIIT 15 min")
         else:
-            st.write("Hybrid strength + conditioning.")
+            st.write("Strength 3 days\nCardio 2 days\nYoga 1 day")
 
-        st.subheader("🚀 90 Day Career Blueprint")
+    # ---------------- TAB 3: Consultant Report ----------------
+    with tab3:
+        st.subheader("🧠 Detailed Consultant Analysis")
+        st.write(f"Dear {name}, based on your inputs and lifestyle metrics:")
 
-        st.write("Month 1: Fundamentals")
-        st.write("Month 2: Advanced Skill + Project")
-        st.write("Month 3: Execution + Applications")
+        st.markdown("**Stress Analysis:**")
+        if career_stress > 7:
+            st.write("High stress! Prioritize recovery cycles.")
+        elif career_stress > 4:
+            st.write("Moderate stress, manageable with discipline.")
+        else:
+            st.write("Healthy stress zone, keep it balanced.")
 
-        st.markdown(f"""
-Dear {name},
+        st.markdown("**Productivity Deep Dive:**")
+        st.write(f"- Sleep Contribution: {sleep_hours*10}\n- Workout Contribution: {physical_activity*15}\n- Motivation Contribution: {motivation*5}\n- Stress Deduction: {-career_stress*4}")
 
-If you stay consistent in **{career_niche}**, your growth will compound daily.
+        st.markdown("**Nutrition Advice:**")
+        st.write(f"{food_type} diet optimized for mental clarity, energy, and muscle recovery.")
 
-Discipline beats motivation.
-Execution beats planning.
-Consistency builds identity.
-""")
+        st.markdown("**Workout Guidance:**")
+        st.write(f"{workout_type} routine structured for max performance and recovery.")
 
-        # DOCX DOWNLOAD
-        doc = Document()
-        doc.add_heading("AI Wellness Report", 0)
-        doc.add_paragraph(f"Name: {name}")
-        doc.add_paragraph(f"Stress Level: {stress_level}")
-        doc.add_paragraph(f"Productivity Score: {productivity_score}")
-        doc.add_paragraph(f"Health Score: {health_score}")
-        doc.add_paragraph(f"Career Domain: {career_domain}")
-        doc.add_paragraph(f"Career Niche: {career_niche}")
+        st.markdown("**Motivational Quote:**")
+        quotes = ["Small daily improvements lead to stunning long-term results.","Discipline creates freedom.","Your future is created by what you do today.","Focus on progress, not perfection."]
+        st.info(random.choice(quotes))
 
-        buffer = io.BytesIO()
-        doc.save(buffer)
+    # ---------------- TAB 4: Career Blueprint ----------------
+    with tab4:
+        st.subheader("🚀 90-Day Career Execution Plan")
+        st.write(f"Domain: {career_domain}\nSpecialization: {career_niche}")
+        st.write("Month 1 → Skill Foundation & Concept Clarity\nMonth 2 → Portfolio / Practical Exposure\nMonth 3 → Mock Testing + Real Applications")
+        st.write("Weekly: 5 Days Skill Deep Work, 1 Day Review, 1 Day Reflection + Networking")
 
-        st.download_button(
-            "Download Professional Report",
-            data=buffer.getvalue(),
-            file_name="AI_Wellness_Report.docx",
-            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        )
+    # ---------------- REPORT DOWNLOAD ----------------
+    doc = Document()
+    doc.add_heading("AI Wellness & Career Report", 0)
+    doc.add_paragraph(f"Name: {name}")
+    doc.add_paragraph(f"Stress Level: {stress_level}")
+    doc.add_paragraph(f"Productivity Score: {productivity_score}")
+    doc.add_paragraph(f"Health Score: {health_score}")
+    doc.add_paragraph(f"Career Domain: {career_domain}")
+    doc.add_paragraph(f"Career Niche: {career_niche}")
+
+    buffer = io.BytesIO()
+    doc.save(buffer)
+    st.download_button(
+        "⬇️ Download Full Professional Report",
+        data=buffer.getvalue(),
+        file_name="AI_Wellness_Report.docx",
+        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    )
