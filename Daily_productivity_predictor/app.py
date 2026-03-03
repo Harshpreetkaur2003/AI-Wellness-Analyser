@@ -33,6 +33,7 @@ st.title("🧠 AI Wellness & Performance Analyzer")
 st.markdown("### Smart Lifestyle • Stress Prediction • Fitness • Career Blueprint")
 st.markdown("---")
 
+# ---------------- LOAD MODEL ----------------
 import os
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -45,7 +46,6 @@ with open(MODEL_PATH, "rb") as f:
 
 with open(LE_PATH, "rb") as f:
     le = pickle.load(f)
-
 # ---------------- INPUT SECTION ----------------
 st.header("📋 Enter Your Details")
 
@@ -72,15 +72,14 @@ with col2:
 
 st.markdown("---")
 
-# ---------------- CAREER SECTION ----------------
 st.header("🎯 Career Direction")
 
 career_domain = st.selectbox(
-    "Select Your Career Domain",
+    "Select Career Domain",
     ["Management", "IT & Data", "Government Exams", "Creative Field", "Entrepreneurship"]
 )
 
-career_niche = st.text_input("Select Your Specific Niche")
+career_niche = st.text_input("Specific Niche (Example: Data Science, MBA Finance, UPSC, UI/UX)")
 
 st.markdown("---")
 
@@ -89,7 +88,6 @@ if st.button("Generate Full AI Wellness Report"):
 
     st.balloons()
 
-    # Prediction
     input_df = pd.DataFrame({
         "Study_Hours_Per_Day": [study_hours],
         "Extracurricular_Hours_Per_Day": [1],
@@ -102,16 +100,8 @@ if st.button("Generate Full AI Wellness Report"):
     prediction = model.predict(input_df)
     stress_level = le.inverse_transform(prediction)[0]
 
-    # Model confidence
-    confidence = None
-    if hasattr(model, "predict_proba"):
-        proba = model.predict_proba(input_df)
-        confidence = round(max(proba[0]) * 100, 2)
-
-    # BMI
     bmi = weight / ((height / 100) ** 2)
 
-    # Scores
     productivity_score = int((sleep_hours * 10) +
                              (physical_activity * 15) +
                              (motivation * 5) -
@@ -123,20 +113,17 @@ if st.button("Generate Full AI Wellness Report"):
                        (water * 5))
     health_score = max(0, min(health_score, 100))
 
-    # ---------------- KPI METRICS ----------------
-    st.markdown(f"## 💬 Dear {name}, Here Is Your AI Dashboard")
+    # ---------------- KPI SECTION ----------------
+    st.markdown(f"## 💬 Dear {name}, Here Is Your Detailed AI Analysis")
 
     colA, colB, colC = st.columns(3)
-    colA.metric("🧠 Stress Level", stress_level)
-    colB.metric("⚡ Productivity", f"{productivity_score}/100")
-    colC.metric("💪 Health Score", f"{health_score}/100")
-
-    if confidence:
-        st.write(f"Model Confidence: {confidence}%")
+    colA.metric("Stress Level", stress_level)
+    colB.metric("Productivity", f"{productivity_score}/100")
+    colC.metric("Health Score", f"{health_score}/100")
 
     st.progress(productivity_score / 100)
 
-    # ---------------- BAR CHART ----------------
+    # ---------------- BAR GRAPH ----------------
     st.subheader("⏳ Weekly Time Distribution")
 
     weekly_data = {
@@ -153,81 +140,93 @@ if st.button("Generate Full AI Wellness Report"):
     ax.set_ylabel("Hours", color="white")
     st.pyplot(fig)
 
-    # ---------------- HEATMAP ----------------
-    st.subheader("🔥 Lifestyle Balance Heatmap")
+    # ---------------- RADAR PERFORMANCE GRAPH ----------------
+    st.subheader("📊 Overall Performance Radar")
 
-    heat_data = np.array([
-        [sleep_hours/12, study_hours/12],
-        [physical_activity/4, motivation/10]
-    ])
+    categories = ["Sleep", "Workout", "Motivation", "Study"]
+    values = [
+        sleep_hours / 12,
+        physical_activity / 4,
+        motivation / 10,
+        study_hours / 12
+    ]
 
-    fig2, ax2 = plt.subplots(figsize=(4,3), facecolor="#0E1117")
+    angles = np.linspace(0, 2 * np.pi, len(categories), endpoint=False)
+    values += values[:1]
+    angles = np.concatenate((angles, [angles[0]]))
+
+    fig2, ax2 = plt.subplots(figsize=(4,4), subplot_kw=dict(polar=True))
+    fig2.patch.set_facecolor("#0E1117")
     ax2.set_facecolor("#0E1117")
-    im = ax2.imshow(heat_data, cmap="cool")
-    ax2.set_xticks([0,1])
-    ax2.set_yticks([0,1])
-    ax2.set_xticklabels(["Health", "Growth"], color="white")
-    ax2.set_yticklabels(["Physical", "Mental"], color="white")
-    plt.colorbar(im)
+    ax2.plot(angles, values, color="#00F5FF")
+    ax2.fill(angles, values, color="#00F5FF", alpha=0.3)
+    ax2.set_xticks(angles[:-1])
+    ax2.set_xticklabels(categories, color="white")
+    ax2.set_yticklabels([])
     st.pyplot(fig2)
 
-    # ---------------- RISK DETECTION ----------------
-    st.subheader("⚠ Risk Detection")
+    # ---------------- DETAILED DIET ----------------
+    st.subheader("🥗 Detailed Nutrition Strategy")
 
-    if sleep_hours < 6:
-        st.warning("Low sleep detected.")
-    if water < 1.5:
-        st.warning("Low hydration detected.")
-    if career_stress > 8:
-        st.error("High stress alert.")
-
-    # ---------------- AI RECOMMENDATIONS ----------------
-    st.subheader("🤖 Smart AI Recommendations")
-
-    if productivity_score < 40:
-        st.write("- Fix sleep schedule.")
-        st.write("- Reduce distractions.")
-    elif productivity_score < 75:
-        st.write("- Increase deep work blocks.")
-    else:
-        st.write("- Maintain discipline and scale performance.")
-
-    # ---------------- DIET PLAN ----------------
-    st.subheader("🥗 Personalized Diet Plan")
+    st.write("Goal: Stable energy, muscle recovery, and mental clarity.")
 
     if food_type == "Vegetarian":
-        diet_plan = ["Oats + Milk", "Dal + Rice", "Fruits", "Roti + Sabzi"]
+        st.write("Breakfast: Oats + Milk + Almonds (Complex carbs + Protein)")
+        st.write("Lunch: Dal + Brown Rice + Paneer (High protein vegetarian)")
+        st.write("Evening: Fruits + Nuts (Micronutrients)")
+        st.write("Dinner: Light roti + vegetables (Low fat)")
     elif food_type == "Vegan":
-        diet_plan = ["Smoothie", "Quinoa + Veggies", "Nuts", "Tofu"]
+        st.write("Breakfast: Peanut butter smoothie (Plant protein)")
+        st.write("Lunch: Quinoa + Chickpeas (Complete amino acids)")
+        st.write("Snack: Seeds mix")
+        st.write("Dinner: Tofu + Vegetables")
     else:
-        diet_plan = ["Eggs", "Chicken + Rice", "Yogurt", "Fish"]
+        st.write("Breakfast: Eggs + Whole wheat toast (High protein)")
+        st.write("Lunch: Grilled chicken + Rice (Muscle repair)")
+        st.write("Snack: Yogurt")
+        st.write("Dinner: Fish + Salad (Omega-3 support)")
 
-    for d in diet_plan:
-        st.write("-", d)
+    # ---------------- DETAILED WORKOUT ----------------
+    st.subheader("🏋 Structured Weekly Workout Plan")
 
-    # ---------------- WORKOUT PLAN ----------------
-    st.subheader("🏋 Structured Workout Plan")
+    if workout_type == "Gym Training":
+        st.write("Mon: Chest + Triceps (Compound lifts)")
+        st.write("Tue: Back + Biceps")
+        st.write("Wed: Legs (Heavy squats)")
+        st.write("Thu: Shoulders")
+        st.write("Fri: Core + HIIT")
+    elif workout_type == "Home Workout":
+        st.write("Pushups 3x15")
+        st.write("Squats 3x20")
+        st.write("Plank 3x60 sec")
+        st.write("Jump rope 10 min")
+    elif workout_type == "Yoga Only":
+        st.write("Surya Namaskar 10 rounds")
+        st.write("Pranayama 15 min")
+        st.write("Meditation 20 min")
+    elif workout_type == "Cardio Focus":
+        st.write("Running 30 min")
+        st.write("Cycling 20 min")
+        st.write("HIIT 15 min")
+    else:
+        st.write("Strength 3 days")
+        st.write("Cardio 2 days")
+        st.write("Yoga 1 day")
 
-    workout_plan = {
-        "Gym Training": ["Chest", "Back", "Legs", "Shoulders"],
-        "Home Workout": ["Pushups", "Squats", "Planks"],
-        "Yoga Only": ["Surya Namaskar", "Pranayama"],
-        "Cardio Focus": ["Running", "Cycling"],
-        "Mixed Routine": ["Strength", "Cardio", "Yoga"]
-    }
+    # ---------------- DETAILED 90 DAY PLAN ----------------
+    st.subheader("🚀 90-Day Career Execution Blueprint")
 
-    for w in workout_plan[workout_type]:
-        st.write("-", w)
+    st.write("Month 1: Build Core Knowledge")
+    st.write("Week 1-2: Fundamentals")
+    st.write("Week 3-4: Practice + Mini Project")
 
-    # ---------------- 90 DAY CAREER PLAN ----------------
-    st.subheader("🚀 90-Day Career Blueprint")
+    st.write("Month 2: Advanced Skill + Major Project")
+    st.write("Week 5-6: Deep specialization")
+    st.write("Week 7-8: Build strong portfolio")
 
-    st.write(f"Domain: {career_domain}")
-    st.write(f"Niche: {career_niche}")
-
-    st.write("Days 1–30: Build Foundation")
-    st.write("Days 31–60: Advanced Skill + Project")
-    st.write("Days 61–90: Mock + Apply + Execute")
+    st.write("Month 3: Execution")
+    st.write("Week 9-10: Mock interviews")
+    st.write("Week 11-12: Apply & network aggressively")
 
     # ---------------- FINAL MOTIVATION ----------------
     st.subheader("💬 Final Consultant Advice")
@@ -235,19 +234,19 @@ if st.button("Generate Full AI Wellness Report"):
     st.markdown(f"""
 Dear {name},
 
-Consistency in **{career_niche}** for 90 days can redefine your trajectory.
+If you execute this plan consistently for 90 days in **{career_niche}**, 
+your confidence, skill level, and opportunities will dramatically improve.
 
-Discipline > Motivation  
-Action > Overthinking  
-Execution > Excuses
+Momentum builds identity.
+Identity builds success.
 """)
 
-    # ---------------- DOCX REPORT ----------------
+    # ---------------- REPORT ----------------
     doc = Document()
     doc.add_heading("AI Wellness Report", 0)
     doc.add_paragraph(f"Name: {name}")
     doc.add_paragraph(f"Stress Level: {stress_level}")
-    doc.add_paragraph(f"Productivity: {productivity_score}")
+    doc.add_paragraph(f"Productivity Score: {productivity_score}")
     doc.add_paragraph(f"Health Score: {health_score}")
     doc.add_paragraph(f"Career Domain: {career_domain}")
     doc.add_paragraph(f"Career Niche: {career_niche}")
@@ -261,6 +260,7 @@ Execution > Excuses
         file_name="AI_Wellness_Report.docx",
         mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     )
+
 
 
 
