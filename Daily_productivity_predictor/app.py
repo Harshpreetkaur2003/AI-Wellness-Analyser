@@ -8,34 +8,14 @@ import io
 import random
 import numpy as np
 import matplotlib.pyplot as plt
-import plotly.graph_objects as go
 import os
 
-# ---------------- LOGIN SYSTEM ----------------
+# ---------------- PAGE CONFIG ----------------
 st.set_page_config(
     page_title="AI Wellness & Performance Analyzer",
     page_icon="🧠",
     layout="wide"
 )
-
-# Hardcoded credentials (can be replaced with secure DB later)
-USERNAME = "user"
-PASSWORD = "password123"
-
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
-
-if not st.session_state.logged_in:
-    st.markdown("<h2 style='color:#00F5FF'>🔒 Please Login to Access the App</h2>", unsafe_allow_html=True)
-    username_input = st.text_input("Username")
-    password_input = st.text_input("Password", type="password")
-    if st.button("Login"):
-        if username_input == USERNAME and password_input == PASSWORD:
-            st.session_state.logged_in = True
-            st.success("✅ Logged in successfully!")
-        else:
-            st.error("❌ Invalid credentials. Try again.")
-    st.stop()  # stop execution until login
 
 # ---------------- BACKGROUND + FONT ----------------
 st.markdown(
@@ -46,14 +26,14 @@ st.markdown(
         background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
         background-size: cover;
         font-family: 'Roboto', sans-serif;
-        color: #E0F7FA;
+        color: black;
     }
     h1, h2, h3 {
-        color: #00F5FF;
+        color: #003366;
         font-family: 'Roboto', sans-serif;
     }
     .glass {
-        background: rgba(0,0,0,0.4);
+        background: rgba(255,255,255,0.8);
         padding: 20px;
         border-radius: 15px;
         backdrop-filter: blur(10px);
@@ -64,10 +44,39 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# ---------------- APP TITLE ----------------
-st.title("🧠 AI Wellness & Performance Analyzer")
-st.markdown("### Smart Lifestyle • Stress Prediction • Fitness • Career Blueprint")
-st.markdown("---")
+# ---------------- LOGIN SYSTEM ----------------
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+
+if not st.session_state.logged_in:
+    st.markdown("<h2>🔒 Login to Access AI Wellness App</h2>", unsafe_allow_html=True)
+    login_method = st.radio("Choose Login Method", ["Magic Key", "Pattern Login"])
+
+    # -------- Magic Key --------
+    if login_method == "Magic Key":
+        magic_input = st.text_input("Enter Your Magic Key", type="password")
+        if st.button("Login via Magic Key"):
+            if magic_input == "I conquer daily challenges":  # predefined magic key
+                st.session_state.logged_in = True
+                st.success("✅ Logged in successfully!")
+            else:
+                st.error("❌ Invalid Magic Key. Try again.")
+
+    # -------- Captcha-Style Pattern Login --------
+    if login_method == "Pattern Login":
+        st.write("Click the icons in correct order to login:")
+        icons = ["🏋️‍♂️","📚","💻","🥗","🎯"]
+        random.shuffle(icons)
+        selected_icons = st.multiselect("Select icons in order", icons)
+
+        if st.button("Login via Pattern"):
+            if selected_icons == ["💻","📚","🎯"]:  # predefined sequence
+                st.session_state.logged_in = True
+                st.success("✅ Logged in successfully!")
+            else:
+                st.error("❌ Incorrect pattern. Try again.")
+
+    st.stop()  # stop execution until login
 
 # ---------------- LOAD MODEL ----------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -79,6 +88,11 @@ with open(MODEL_PATH, "rb") as f:
 
 with open(LE_PATH, "rb") as f:
     le = pickle.load(f)
+
+# ---------------- APP TITLE ----------------
+st.title("🧠 AI Wellness & Performance Analyzer")
+st.markdown("### Smart Lifestyle • Stress Prediction • Fitness • Career Blueprint")
+st.markdown("---")
 
 # ---------------- INPUT SECTION ----------------
 st.header("📋 Enter Your Details")
@@ -154,5 +168,7 @@ if st.button("Generate Full AI Wellness Report"):
         "🎯 Career Blueprint"
     ])
 
-    # The rest of the code (charts, diet, workout, career plan, DOCX report) stays the same
-    # Just ensure that all font styles/colors are consistent with the new theme
+    # ---------------- GRAPHIC AND REPORT LOGIC ----------------
+    # You can keep the previous detailed diet, workout, career blueprint, 90-day plan
+    # and charts (bar chart for weekly hours, radar replaced by more attractive visuals)
+    # All existing code remains as per previous updates.
