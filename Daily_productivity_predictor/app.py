@@ -30,7 +30,7 @@ st.set_page_config(
 )
 
 st.title("🧠 AI Wellness & Performance Analyzer")
-st.markdown("### Smart Lifestyle • Stress Prediction • Fitness & Diet Planning")
+st.markdown("### Smart Lifestyle • Stress Prediction • Fitness • Mental Growth")
 st.markdown("---")
 
 # ---------------- INPUT SECTION ----------------
@@ -64,7 +64,7 @@ st.markdown("---")
 st.header("🏋️ Choose Your Workout Preference")
 
 workout_type = st.selectbox(
-    "What type of workout do you prefer?",
+    "Workout Preference",
     ["Gym Training", "Home Workout", "Yoga Only", "Cardio Focus", "Mixed Routine"]
 )
 
@@ -98,7 +98,7 @@ if st.button("Generate Full AI Wellness Report"):
     else:
         bmi_status = "Obese"
 
-    # -------- ADVANCED SCORES --------
+    # -------- Scores --------
     productivity_score = int(
         (sleep_hours * 10) +
         (physical_activity * 15) +
@@ -121,7 +121,15 @@ if st.button("Generate Full AI Wellness Report"):
     elif career_stress > 5:
         burnout_risk = "Moderate"
 
-    # -------- GENERAL DIET --------
+    # -------- Workout Plan --------
+    workout_plan = [
+        "Strength Training (3 days)",
+        "Cardio (2 days)",
+        "Stretching/Yoga (1 day)",
+        "1 Full Rest Day"
+    ]
+
+    # -------- Diet --------
     general_diet = [
         "Breakfast: Whole grains + Protein",
         "Lunch: Balanced carbs + Vegetables + Protein",
@@ -130,178 +138,96 @@ if st.button("Generate Full AI Wellness Report"):
         "Water: 2-3 liters daily"
     ]
 
-    # -------- PERSONALIZED DIET --------
-    personalized_diet = []
-    if want_diet == "Yes":
-
-        if food_type == "Vegetarian":
-            protein_source = "Paneer / Lentils / Tofu"
-        elif food_type == "Non-Vegetarian":
-            protein_source = "Eggs / Chicken / Fish"
-        else:
-            protein_source = "Tofu / Beans / Plant protein"
-
-        if bmi_status == "Underweight":
-            goal = "Increase calorie intake with healthy fats."
-        elif bmi_status == "Normal":
-            goal = "Maintain balanced nutrition."
-        elif bmi_status == "Overweight":
-            goal = "Reduce processed carbs and increase protein."
-        else:
-            goal = "Follow calorie-controlled high-protein diet."
-
-        personalized_diet = [
-            f"Goal: {goal}",
-            f"Protein Source: {protein_source}",
-            "Breakfast: High-protein meal",
-            "Lunch: Controlled carbs + Vegetables + Protein",
-            "Snack: Healthy fats + fruits",
-            "Dinner: Light protein-focused meal",
-            "Hydration: 2.5 liters water"
-        ]
-
-    # -------- WORKOUT PLAN --------
-    if workout_type == "Gym Training":
-        workout_plan = [
-            "Mon: Chest + Triceps",
-            "Tue: Back + Biceps",
-            "Wed: Cardio",
-            "Thu: Legs",
-            "Fri: Shoulders",
-            "Sat: Core",
-            "Sun: Rest"
-        ]
-    elif workout_type == "Home Workout":
-        workout_plan = [
-            "Mon: Push-ups + Squats",
-            "Tue: Core Training",
-            "Wed: Jump Rope",
-            "Thu: Lunges + Abs",
-            "Fri: Full Body Workout",
-            "Sat: Stretching",
-            "Sun: Rest"
-        ]
-    elif workout_type == "Yoga Only":
-        workout_plan = [
-            "Daily: Surya Namaskar (10 rounds)",
-            "Pranayama (15 mins)",
-            "Meditation (15 mins)"
-        ]
-    elif workout_type == "Cardio Focus":
-        workout_plan = [
-            "Mon: Running",
-            "Tue: Cycling",
-            "Wed: HIIT",
-            "Thu: Brisk Walk",
-            "Fri: Skipping",
-            "Sat: Swimming",
-            "Sun: Rest"
-        ]
-    else:
-        workout_plan = [
-            "3 Days Strength Training",
-            "2 Days Cardio",
-            "1 Day Yoga",
-            "1 Day Complete Rest"
-        ]
-
     # ---------------- DASHBOARD ----------------
-    tab1, tab2, tab3, tab4, tab5 = st.tabs([
-        "📊 AI Dashboard",
-        "🏋️ Workout Plan",
-        "🥗 Nutrition",
+    tab1, tab2, tab3, tab4 = st.tabs([
+        "📊 Dashboard",
+        "🏋️ Fitness",
         "🧠 Mental Health",
-        "📅 Weekly Growth Plan"
+        "🎯 Goals & Growth"
     ])
 
-    # TAB 1
+    # -------- TAB 1 --------
     with tab1:
-        st.subheader("Stress Prediction")
+        st.subheader("Stress & Health Overview")
         st.success(f"Predicted Stress Level: {stress_level}")
         st.write(f"BMI: {round(bmi,2)} ({bmi_status})")
 
-        colA, colB = st.columns(2)
+        st.metric("Productivity Score", f"{productivity_score}/100")
+        st.progress(productivity_score / 100)
 
-        with colA:
-            st.metric("Productivity Score", f"{productivity_score}/100")
-            st.progress(productivity_score / 100)
+        st.metric("Health Score", f"{health_score}/100")
+        st.progress(health_score / 100)
 
-        with colB:
-            st.metric("Health Score", f"{health_score}/100")
-            st.progress(health_score / 100)
-
-        st.subheader("Burnout Risk")
         if burnout_risk == "High":
-            st.error("🚨 High Burnout Risk")
+            st.error("🚨 High Burnout Risk – Prioritize Rest & Recovery")
         elif burnout_risk == "Moderate":
-            st.warning("⚠️ Moderate Burnout Risk")
+            st.warning("⚠️ Moderate Burnout Risk – Improve Balance")
         else:
-            st.success("✅ Low Burnout Risk")
+            st.success("✅ Low Burnout Risk – You're Managing Well")
 
-        # Radar Chart
-        categories = ["Sleep", "Activity", "Stress", "Motivation", "Hydration"]
-        values = [
-            sleep_hours * 10,
-            physical_activity * 20,
-            100 - (career_stress * 10),
-            motivation * 10,
-            water * 20
-        ]
-
-        values += values[:1]
-        angles = np.linspace(0, 2 * np.pi, len(categories), endpoint=False).tolist()
-        angles += angles[:1]
-
-        fig, ax = plt.subplots(figsize=(6,6), subplot_kw=dict(polar=True))
-        ax.plot(angles, values)
-        ax.fill(angles, values, alpha=0.25)
-        ax.set_xticks(angles[:-1])
-        ax.set_xticklabels(categories)
-        ax.set_yticklabels([])
-        st.pyplot(fig)
-
-    # TAB 2
+    # -------- TAB 2 --------
     with tab2:
-        st.subheader("Weekly Workout Plan")
+        st.subheader("Workout Plan")
         for w in workout_plan:
             st.write("-", w)
 
-    # TAB 3
+        st.subheader("Nutrition Guide")
+        for d in general_diet:
+            st.write("-", d)
+
+    # -------- TAB 3 --------
     with tab3:
-        if want_diet == "Yes":
-            st.subheader("⭐ Personalized Diet Plan")
-            for d in personalized_diet:
-                st.write("-", d)
+        st.subheader("Mental Health Guidance")
+
+        if stress_level == "High":
+            st.write("• Practice 10 minutes of meditation daily")
+            st.write("• Follow Pomodoro (25-5 method)")
+            st.write("• Limit social media usage")
+        elif stress_level == "Medium":
+            st.write("• Maintain work-life balance")
+            st.write("• Exercise regularly")
+            st.write("• Journal your thoughts weekly")
         else:
-            st.subheader("General Healthy Diet Plan")
-            for d in general_diet:
-                st.write("-", d)
+            st.write("• Continue your healthy routine")
+            st.write("• Practice gratitude daily")
+            st.write("• Keep challenging yourself positively")
 
-    # TAB 4
-    with tab4:
-        st.subheader("Mental Health Suggestions")
-        if career_stress > 7:
-            st.write("• Practice daily meditation (10 mins)")
-            st.write("• Use Pomodoro technique")
-        if sleep_hours < 6:
-            st.write("• Maintain fixed sleep schedule")
-        if motivation < 5:
-            st.write("• Break goals into smaller tasks")
+        st.subheader("📚 Recommended Books")
 
-    # TAB 5
-    with tab5:
-        st.subheader("7-Day Growth Plan")
-        weekly_plan = [
-            "Day 1: Plan goals & schedule",
-            "Day 2: Deep work session",
-            "Day 3: Cardio + Skill learning",
-            "Day 4: Strength training",
-            "Day 5: Focused productivity block",
-            "Day 6: Reflection",
-            "Day 7: Full rest"
+        st.write("- Atomic Habits by James Clear")
+        st.write("- Deep Work by Cal Newport")
+        st.write("- The 7 Habits of Highly Effective People by Stephen Covey")
+        st.write("- The Power of Now by Eckhart Tolle")
+
+        st.subheader("💬 Motivational Quote")
+
+        quotes = [
+            "Small daily improvements lead to stunning long-term results.",
+            "Discipline creates freedom.",
+            "Your future is created by what you do today.",
+            "Focus on progress, not perfection."
         ]
-        for day in weekly_plan:
-            st.write("-", day)
+
+        st.info(random.choice(quotes))
+
+    # -------- TAB 4 --------
+    with tab4:
+        st.subheader("🎯 Goal Focus Strategy")
+
+        st.write("1️⃣ Define 1 main goal for next 30 days.")
+        st.write("2️⃣ Break it into weekly milestones.")
+        st.write("3️⃣ Schedule daily deep work blocks.")
+        st.write("4️⃣ Track progress every Sunday.")
+        st.write("5️⃣ Remove distractions during focus time.")
+
+        st.subheader("Growth Advice")
+
+        if productivity_score > 70:
+            st.success("You are performing at a strong level. Focus on consistency.")
+        elif productivity_score > 40:
+            st.warning("You have potential. Improve sleep and discipline.")
+        else:
+            st.error("Start small. Build routines before chasing big goals.")
 
     # ---------------- DOCX REPORT ----------------
     doc = Document()
@@ -311,18 +237,6 @@ if st.button("Generate Full AI Wellness Report"):
     doc.add_paragraph(f"Productivity Score: {productivity_score}/100")
     doc.add_paragraph(f"Health Score: {health_score}/100")
     doc.add_paragraph(f"Burnout Risk: {burnout_risk}")
-
-    doc.add_heading("Workout Plan", level=1)
-    for w in workout_plan:
-        doc.add_paragraph(w, style="List Bullet")
-
-    doc.add_heading("Diet Plan", level=1)
-    if want_diet == "Yes":
-        for d in personalized_diet:
-            doc.add_paragraph(d, style="List Bullet")
-    else:
-        for d in general_diet:
-            doc.add_paragraph(d, style="List Bullet")
 
     buffer = io.BytesIO()
     doc.save(buffer)
