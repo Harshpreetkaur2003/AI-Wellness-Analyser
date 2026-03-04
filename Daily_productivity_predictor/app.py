@@ -2,13 +2,10 @@
 
 import streamlit as st
 import pandas as pd
-import pickle
+import numpy as np
 from docx import Document
 import io
-import random
-import numpy as np
 import plotly.graph_objects as go
-import os
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
@@ -16,7 +13,8 @@ st.set_page_config(
     page_icon="🧠",
     layout="wide"
 )
-# ---------------- CINEMATIC BRIGHT & GRADIENT BACKGROUND ----------------
+
+# ---------------- CINEMATIC BACKGROUND ----------------
 st.markdown(
     """
     <style>
@@ -65,21 +63,9 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-
 # ---------------- APP TITLE ----------------
 st.markdown('<div class="glass"><h1>🧠 AI Wellness & Performance Analyzer</h1></div>', unsafe_allow_html=True)
 st.markdown('<div class="glass"><h3>Smart Lifestyle • Stress Prediction • Fitness • Career Blueprint</h3></div>', unsafe_allow_html=True)
-
-# ---------------- LOAD MODEL ----------------
-#BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-#MODEL_PATH = os.path.join(BASE_DIR, "models", "productivity_model.pkl")
-#LE_PATH = os.path.join(BASE_DIR, "models", "label_encoder.pkl")
-
-#with open(MODEL_PATH, "rb") as f:
- #   model = pickle.load(f)
-
-#with open(LE_PATH, "rb") as f:
- #   le = pickle.load(f)
 
 # ---------------- USER INPUT ----------------
 st.header("📋 Enter Your Details")
@@ -113,34 +99,65 @@ career_niche = st.text_input("Specific Niche (Example: Data Science, MBA Finance
 
 st.markdown("---")
 
+# ---------------- AI PREDICTION FUNCTION ----------------
+def ai_prediction(study, sleep, workout, social, motivation, career_stress, bmi, water):
+    """
+    Simple AI logic for wellness prediction
+    Returns stress_level, stress_text, productivity_score, health_score, tips_list
+    """
+    # Stress Prediction
+    stress_score = max(1, min(10, int(career_stress + (8 - sleep) + (5 - workout) * 1.5)))
+    if stress_score >= 8:
+        stress_text = "High Stress! Prioritize sleep, mindfulness, and breaks."
+    elif stress_score >= 5:
+        stress_text = "Moderate Stress. Maintain schedule and recovery cycles."
+    else:
+        stress_text = "Low Stress. Keep up healthy habits!"
+
+    # Productivity Score
+    productivity_score = max(0, min(100, int((sleep*10) + (workout*10) + (motivation*5) - (career_stress*4))))
+    
+    # Health Score (BMI + Water Intake + Activity)
+    health_score = max(0, min(100, int((100 - abs(22-bmi)*5) + workout*5 + water*5)))
+
+    # Tips
+    tips = []
+    if sleep < 6:
+        tips.append("Increase sleep to at least 7 hours for better recovery.")
+    if workout < 1:
+        tips.append("Include at least 30 min of physical activity daily.")
+    if water < 2:
+        tips.append("Drink at least 2 liters of water per day.")
+    if motivation < 5:
+        tips.append("Set small achievable goals to boost motivation.")
+    if career_stress > 7:
+        tips.append("Practice mindfulness or meditation to reduce career stress.")
+
+    return stress_score, stress_text, productivity_score, health_score, tips
+
 # ---------------- GENERATE REPORT ----------------
 if st.button("Generate Full AI Wellness Report"):
 
     st.balloons()
-
-    # ML Prediction
-    input_df = pd.DataFrame({
-        "Study_Hours_Per_Day": [study_hours],
-        "Extracurricular_Hours_Per_Day": [1],
-        "Sleep_Hours_Per_Day": [sleep_hours],
-        "Social_Hours_Per_Day": [social_hours],
-        "Physical_Activity_Hours_Per_Day": [physical_activity],
-        "GPA": [gpa]
-    })
-    prediction = model.predict(input_df)
-    stress_level = le.inverse_transform(prediction)[0]
-
-    # KPI Metrics
+    
+    # BMI Calculation
     bmi = weight / ((height / 100) ** 2)
-    productivity_score = max(0, min(int((sleep_hours * 10) + (physical_activity * 15) + (motivation * 5) - (career_stress * 4)), 100))
-    health_score = max(0, min(int((100 - abs(22 - bmi) * 5) + (physical_activity * 10) + (water * 5)), 100))
+    
+    # AI Prediction
+    stress_score, stress_text, productivity_score, health_score, tips = ai_prediction(
+        study_hours, sleep_hours, physical_activity, social_hours, motivation, career_stress, bmi, water
+    )
 
-    st.markdown(f'<div class="glass"><h2>💬 Dear {name}, Here Is Your Detailed AI Analysis</h2></div>', unsafe_allow_html=True)
+    # Display Metrics
+    st.markdown(f'<div class="glass"><h2>💬 Dear {name}, Here Is Your AI Wellness Prediction & Tips</h2></div>', unsafe_allow_html=True)
     colA, colB, colC = st.columns(3)
-    colA.metric("Stress Level", stress_level)
+    colA.metric("Stress Level", f"{stress_score}/10")
     colB.metric("Productivity Score", f"{productivity_score}/100")
     colC.metric("Health Score", f"{health_score}/100")
-    st.progress(productivity_score / 100)
+    
+    st.subheader("📝 Personalized Tips for You")
+    for tip in tips:
+        st.write(f"- {tip}")
 
     # ---------------- TABS ----------------
     tab1, tab2, tab3, tab4 = st.tabs(["📊 Analytics","🥗 Diet & Workout","🧠 Consultant Report","🎯 Career Blueprint"])
@@ -204,26 +221,13 @@ if st.button("Generate Full AI Wellness Report"):
     with tab3:
         st.subheader("🧠 Detailed Consultant Analysis")
         st.write(f"Dear {name}, based on your inputs and lifestyle metrics:")
-
         st.markdown("**Stress Analysis:**")
-        if career_stress > 7:
-            st.write("High stress! Prioritize recovery cycles and mindfulness techniques.")
-        elif career_stress > 4:
-            st.write("Moderate stress, manageable with discipline and structured schedule.")
-        else:
-            st.write("Healthy stress zone, keep it balanced and maintain habits.")
-
-        st.markdown("**Productivity Deep Dive:**")
-        st.write(f"- Sleep Contribution: {sleep_hours*10}\n- Workout Contribution: {physical_activity*15}\n- Motivation Contribution: {motivation*5}\n- Stress Deduction: {-career_stress*4}")
-
-        st.markdown("**Nutrition Guidance:**")
-        st.write(f"{food_type} diet optimized for mental clarity, energy, and muscle recovery.")
-
-        st.markdown("**Workout Guidance:**")
-        st.write(f"{workout_type} routine structured for max performance and recovery.")
-
-        st.markdown("**Recommended Books for Growth:**")
-        st.write("- Atomic Habits by James Clear\n- Deep Work by Cal Newport\n- The 7 Habits of Highly Effective People by Stephen Covey\n- Mindset by Carol Dweck")
+        st.write(stress_text)
+        st.markdown("**Productivity & Health Metrics:**")
+        st.write(f"- Productivity Score: {productivity_score}/100\n- Health Score: {health_score}/100")
+        st.markdown("**Personalized Tips:**")
+        for tip in tips:
+            st.write(f"- {tip}")
 
     # ---------------- TAB 4: Career Blueprint ----------------
     with tab4:
@@ -245,43 +249,21 @@ if st.button("Generate Full AI Wellness Report"):
             st.write("- UI/UX Design, Content Creation, Art & Design, Photography")
         else:
             st.write("- Entrepreneurship, Startups, Product Management, Marketing")
- # ---------------- REPORT DOWNLOAD ----------------
+
+# ---------------- REPORT DOWNLOAD ----------------
 if st.button("Download Consultant Report"):
 
     st.balloons()
-
-    # ML Prediction
-    input_df = pd.DataFrame({
-        "Study_Hours_Per_Day": [study_hours],
-        "Extracurricular_Hours_Per_Day": [1],
-        "Sleep_Hours_Per_Day": [sleep_hours],
-        "Social_Hours_Per_Day": [social_hours],
-        "Physical_Activity_Hours_Per_Day": [physical_activity],
-        "GPA": [gpa]
-    })
-    prediction = model.predict(input_df)
-    stress_level = le.inverse_transform(prediction)[0]
-
-    # ---------------- Consultant Suggestions ----------------
-    if career_stress > 7:
-        stress_text = "High stress! Prioritize recovery cycles and mindfulness techniques."
-    elif career_stress > 4:
-        stress_text = "Moderate stress, manageable with discipline and structured schedule."
-    else:
-        stress_text = "Healthy stress zone, keep it balanced and maintain habits."
-
-    productivity_text = f"- Sleep Contribution: {sleep_hours*10}\n- Workout Contribution: {physical_activity*15}\n- Motivation Contribution: {motivation*5}\n- Stress Deduction: {-career_stress*4}"
-    nutrition_text = f"{food_type} diet optimized for mental clarity, energy, and muscle recovery."
-    workout_text = f"{workout_type} routine structured for max performance and recovery."
-
-    # ---------------- Generate DOCX ----------------
+    
+    # Generate DOCX
     doc = Document()
     doc.add_heading("🧠 AI Wellness Consultant Report", 0)
     doc.add_paragraph(f"Dear {name}, here is your personalized consultation report:\n")
     doc.add_paragraph(f"1️⃣ Stress Analysis:\n{stress_text}\n")
-    doc.add_paragraph(f"2️⃣ Productivity Deep Dive:\n{productivity_text}\n")
-    doc.add_paragraph(f"3️⃣ Nutrition Guidance:\n{nutrition_text}\n")
-    doc.add_paragraph(f"4️⃣ Workout Guidance:\n{workout_text}\n")
+    doc.add_paragraph(f"2️⃣ Productivity Score: {productivity_score}/100\nHealth Score: {health_score}/100\n")
+    doc.add_paragraph("3️⃣ Personalized Tips:")
+    for tip in tips:
+        doc.add_paragraph(f"- {tip}")
 
     buffer = io.BytesIO()
     doc.save(buffer)
@@ -291,12 +273,3 @@ if st.button("Download Consultant Report"):
         file_name="AI_Wellness_Consultant_Report.docx",
         mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     )
-
-    
-
-
-
-
-
-
-
