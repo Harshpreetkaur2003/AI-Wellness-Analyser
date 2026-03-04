@@ -16,42 +16,55 @@ st.set_page_config(
     page_icon="🧠",
     layout="wide"
 )
-
-# ---------------- CINEMATIC DARK-BRIGHT BACKGROUND ----------------
+# ---------------- CINEMATIC BRIGHT & GRADIENT BACKGROUND ----------------
 st.markdown(
     """
     <style>
     .stApp {
-        background: url('https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
+        background: linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.35)),
+                    url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
         background-size: cover;
-        filter: brightness(0.55);
         color: white;
         font-family: 'Segoe UI', sans-serif;
     }
     h1, h2, h3 {
         color: #00F5FF;
         font-weight: 700;
-        text-shadow: 1px 1px 6px #000000;
+        text-shadow: 2px 2px 8px #000000;
     }
     .glass {
-        background: rgba(0,0,0,0.65);
-        padding: 20px;
+        background: rgba(0,0,0,0.6);
+        padding: 25px;
         border-radius: 20px;
-        backdrop-filter: blur(15px);
+        backdrop-filter: blur(18px);
         margin-bottom: 20px;
-        box-shadow: 0 0 15px #000000;
+        box-shadow: 0 0 20px #000000;
     }
     .metric-box {
-        background: rgba(0,0,0,0.65);
+        background: rgba(0,0,0,0.6);
         border-radius: 15px;
         padding: 15px;
         text-align: center;
-        box-shadow: 0 0 10px #111111;
+        box-shadow: 0 0 12px #111111;
+    }
+    .panda {
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        width: 120px;
+        z-index: 9999;
+        animation: float 3s infinite;
+    }
+    @keyframes float {
+        0% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0); }
     }
     </style>
     """,
     unsafe_allow_html=True
 )
+
 
 # ---------------- APP TITLE ----------------
 st.markdown('<div class="glass"><h1>🧠 AI Wellness & Performance Analyzer</h1></div>', unsafe_allow_html=True)
@@ -251,3 +264,4 @@ if st.button("Generate Full AI Wellness Report"):
         file_name="AI_Wellness_Report.docx",
         mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     )
+
