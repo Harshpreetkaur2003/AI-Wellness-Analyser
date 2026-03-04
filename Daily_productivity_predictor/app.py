@@ -249,7 +249,6 @@ if st.button("Generate Full AI Wellness Report"):
     doc = Document()
     doc.add_heading("AI Wellness & Career Report", 0)
     doc.add_paragraph(f"Name: {name}")
-    doc.add_paragraph(f"Gender: {gender}")
     doc.add_paragraph(f"Stress Level: {stress_level}")
     doc.add_paragraph(f"Productivity Score: {productivity_score}")
     doc.add_paragraph(f"Health Score: {health_score}")
@@ -267,3 +266,4 @@ if st.button("Generate Full AI Wellness Report"):
         file_name="AI_Wellness_Report.docx",
         mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     )
+
