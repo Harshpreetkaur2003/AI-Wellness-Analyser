@@ -169,7 +169,7 @@ if st.button("Generate Full AI Wellness Report"):
             st.write(f"This is a generalized {food_type} diet & workout recommendation:")
 
         if food_type == "Vegetarian":
-            st.write("Breakfast: Oats + Milk + Almonds\nLunch: Dal + Brown Rice + Paneer\nEvening: Fruits + Nuts\nDinner: Light Roti + Vegetables")
+            st.write("Breakfast: Oats + Milk + Almonds \n Lunch: Dal + Brown Rice + Paneer\nEvening: Fruits + Nuts\nDinner: Light Roti + Vegetables")
         elif food_type == "Vegan":
             st.write("Breakfast: Peanut Butter Smoothie\nLunch: Quinoa + Chickpeas\nSnack: Seeds Mix\nDinner: Tofu + Vegetables")
         else:
@@ -251,3 +251,4 @@ if st.button("Generate Full AI Wellness Report"):
         file_name="AI_Wellness_Report.docx",
         mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     )
+
