@@ -17,32 +17,32 @@ st.set_page_config(
     layout="wide"
 )
 
-# ---------------- DARK CINEMATIC BACKGROUND ----------------
+# ---------------- CINEMATIC DARK-BRIGHT BACKGROUND ----------------
 st.markdown(
     """
     <style>
     .stApp {
         background: url('https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
         background-size: cover;
-        filter: brightness(0.3);
+        filter: brightness(0.55);
         color: white;
         font-family: 'Segoe UI', sans-serif;
     }
     h1, h2, h3 {
         color: #00F5FF;
         font-weight: 700;
-        text-shadow: 2px 2px 8px #000000;
+        text-shadow: 1px 1px 6px #000000;
     }
     .glass {
-        background: rgba(0,0,0,0.75);
+        background: rgba(0,0,0,0.65);
         padding: 20px;
         border-radius: 20px;
-        backdrop-filter: blur(20px);
+        backdrop-filter: blur(15px);
         margin-bottom: 20px;
         box-shadow: 0 0 15px #000000;
     }
     .metric-box {
-        background: rgba(0,0,0,0.75);
+        background: rgba(0,0,0,0.65);
         border-radius: 15px;
         padding: 15px;
         text-align: center;
@@ -89,6 +89,7 @@ with col2:
     food_type = st.selectbox("Diet Preference", ["Vegetarian", "Non-Vegetarian", "Vegan"])
     workout_type = st.selectbox("Workout Preference",
         ["Gym Training", "Home Workout", "Yoga Only", "Cardio Focus", "Mixed Routine"])
+    plan_type = st.radio("Choose Plan Type", ["Personalized Plan", "Generalized Plan"])
 
 st.header("🎯 Career Direction")
 career_domain = st.selectbox(
@@ -161,7 +162,12 @@ if st.button("Generate Full AI Wellness Report"):
 
     # ---------------- TAB 2: Diet & Workout ----------------
     with tab2:
-        st.subheader("🥗 Personalized Nutrition")
+        st.subheader("🥗 Personalized Nutrition & Workout Plan")
+        if plan_type=="Personalized Plan":
+            st.write(f"Based on your inputs ({food_type}, {workout_type}), here is a tailored plan:")
+        else:
+            st.write(f"This is a generalized {food_type} diet & workout recommendation:")
+
         if food_type == "Vegetarian":
             st.write("Breakfast: Oats + Milk + Almonds\nLunch: Dal + Brown Rice + Paneer\nEvening: Fruits + Nuts\nDinner: Light Roti + Vegetables")
         elif food_type == "Vegan":
@@ -188,35 +194,44 @@ if st.button("Generate Full AI Wellness Report"):
 
         st.markdown("**Stress Analysis:**")
         if career_stress > 7:
-            st.write("High stress! Prioritize recovery cycles.")
+            st.write("High stress! Prioritize recovery cycles and mindfulness techniques.")
         elif career_stress > 4:
-            st.write("Moderate stress, manageable with discipline.")
+            st.write("Moderate stress, manageable with discipline and structured schedule.")
         else:
-            st.write("Healthy stress zone, keep it balanced.")
+            st.write("Healthy stress zone, keep it balanced and maintain habits.")
 
         st.markdown("**Productivity Deep Dive:**")
         st.write(f"- Sleep Contribution: {sleep_hours*10}\n- Workout Contribution: {physical_activity*15}\n- Motivation Contribution: {motivation*5}\n- Stress Deduction: {-career_stress*4}")
 
-        st.markdown("**Nutrition Advice:**")
+        st.markdown("**Nutrition Guidance:**")
         st.write(f"{food_type} diet optimized for mental clarity, energy, and muscle recovery.")
 
         st.markdown("**Workout Guidance:**")
         st.write(f"{workout_type} routine structured for max performance and recovery.")
 
-        st.markdown("**Recommended Books for Personal & Career Growth:**")
-        st.write("- Atomic Habits by James Clear")
-        st.write("- Deep Work by Cal Newport")
-        st.write("- The 7 Habits of Highly Effective People by Stephen Covey")
-        st.write("- Mindset by Carol Dweck")
+        st.markdown("**Recommended Books for Growth:**")
+        st.write("- Atomic Habits by James Clear\n- Deep Work by Cal Newport\n- The 7 Habits of Highly Effective People by Stephen Covey\n- Mindset by Carol Dweck")
 
     # ---------------- TAB 4: Career Blueprint ----------------
     with tab4:
-        st.subheader("🎯 90-Day Career Execution Plan")
+        st.subheader("🎯 Career Blueprint & Skills")
         st.write(f"Domain: {career_domain}\nSpecialization: {career_niche}")
         st.write("Month 1 → Skill Foundation & Concept Clarity")
         st.write("Month 2 → Portfolio / Practical Exposure")
         st.write("Month 3 → Mock Testing + Real Applications")
         st.write("Weekly: 5 Days Skill Deep Work, 1 Day Review, 1 Day Reflection + Networking")
+        st.write("Key Skills: Critical Thinking, Technical Skills, Communication, Time Management")
+        st.write("Subdomains One Can Explore:")
+        if career_domain=="IT & Data":
+            st.write("- Data Science, AI/ML, Web Development, Cloud Computing")
+        elif career_domain=="Management":
+            st.write("- Business Strategy, Finance, Marketing, Operations")
+        elif career_domain=="Government Exams":
+            st.write("- Civil Services, Banking, SSC, Defence Exams")
+        elif career_domain=="Creative Field":
+            st.write("- UI/UX Design, Content Creation, Art & Design, Photography")
+        else:
+            st.write("- Entrepreneurship, Startups, Product Management, Marketing")
 
     # ---------------- REPORT DOWNLOAD ----------------
     doc = Document()
