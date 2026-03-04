@@ -248,7 +248,6 @@ if st.button("Generate Full AI Wellness Report"):
 
     # ---------------- REPORT DOWNLOAD ----------------
   # ---------------- REPORT DOWNLOAD ----------------
-# ---------------- REPORT DOWNLOAD ----------------
 if st.button("Generate Full AI Wellness Report"):
 
     st.balloons()
@@ -271,29 +270,32 @@ if st.button("Generate Full AI Wellness Report"):
         st.error(f"Prediction Error: {e}")
         stress_level = "N/A"
 
-    # KPI Metrics
-    bmi = weight / ((height / 100) ** 2)
-    productivity_score = max(0, min(int((sleep_hours * 10) + (physical_activity * 15) + (motivation * 5) - (career_stress * 4)), 100))
-    health_score = max(0, min(int((100 - abs(22 - bmi) * 5) + (physical_activity * 10) + (water * 5)), 100))
+    # ---------------- Consultant Report Texts ----------------
+    if career_stress > 7:
+        stress_text = "High stress! Prioritize recovery cycles and mindfulness techniques."
+    elif career_stress > 4:
+        stress_text = "Moderate stress, manageable with discipline and structured schedule."
+    else:
+        stress_text = "Healthy stress zone, keep it balanced and maintain habits."
+
+    productivity_text = f"- Sleep Contribution: {sleep_hours*10}\n- Workout Contribution: {physical_activity*15}\n- Motivation Contribution: {motivation*5}\n- Stress Deduction: {-career_stress*4}"
+    nutrition_text = f"{food_type} diet optimized for mental clarity, energy, and muscle recovery."
+    workout_text = f"{workout_type} routine structured for max performance and recovery."
 
     # Generate DOCX report
     doc = Document()
-    doc.add_heading("AI Wellness & Career Report", 0)
-    doc.add_paragraph(f"Name: {name}")
-    doc.add_paragraph(f"Stress Level: {stress_level}")
-    doc.add_paragraph(f"Productivity Score: {productivity_score}")
-    doc.add_paragraph(f"Health Score: {health_score}")
-    doc.add_paragraph(f"Career Domain: {career_domain}")
-    doc.add_paragraph(f"Career Niche: {career_niche}")
+    doc.add_heading("AI Wellness Consultant Report", 0)
+    doc.add_paragraph(f"Dear {name}, here is your personalized consultation report:\n")
+    doc.add_paragraph(f"1️⃣ Stress Analysis:\n{stress_text}")
+    doc.add_paragraph(f"2️⃣ Productivity Deep Dive:\n{productivity_text}")
+    doc.add_paragraph(f"3️⃣ Nutrition Guidance:\n{nutrition_text}")
+    doc.add_paragraph(f"4️⃣ Workout Guidance:\n{workout_text}")
 
     buffer = io.BytesIO()
     doc.save(buffer)
     st.download_button(
-        "⬇️ Download Full Professional Report",
+        "⬇️ Download Consultant Report",
         data=buffer.getvalue(),
-        file_name="AI_Wellness_Report.docx",
+        file_name="AI_Wellness_Consultant_Report.docx",
         mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     )
-
-
-
