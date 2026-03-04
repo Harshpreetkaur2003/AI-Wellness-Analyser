@@ -9,7 +9,6 @@ import random
 import numpy as np
 import plotly.graph_objects as go
 import os
-import string
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
@@ -23,9 +22,9 @@ st.markdown(
     """
     <style>
     .stApp {
-        background: url('https://images.unsplash.com/photo-1505685296765-3a2736de412f?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
+        background: url('https://images.unsplash.com/photo-1613478209690-476a50e7c2d6?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
         background-size: cover;
-        filter: brightness(0.35);
+        filter: brightness(0.3);
         color: white;
         font-family: 'Segoe UI', sans-serif;
     }
@@ -54,39 +53,17 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# ---------------- SESSION STATE ----------------
-if "authenticated" not in st.session_state:
-    st.session_state.authenticated = False
+# ---------------- SECRET KEY LOGIN ----------------
+VALID_KEYS = ["UnlockWellnessAI", "AIInsight2026", "SmartLifeKey"]
 
-if "generated_otp" not in st.session_state:
-    st.session_state.generated_otp = ''.join(random.choices(string.digits, k=4))
-
-# ---------------- LOGIN ----------------
-if not st.session_state.authenticated:
-    st.title("🔐 Secure Access Portal")
-    login_type = st.radio("Choose Authentication Method", ["Secret Passphrase", "Dynamic OTP Login"])
-
-    if login_type == "Secret Passphrase":
-        passphrase = st.text_input("Enter Secret Passphrase", type="password")
-        if st.button("Login"):
-            if passphrase == "UnlockMyWellnessAI":
-                st.session_state.authenticated = True
-                st.success("✅ Access Granted!")
-                st.rerun()
-            else:
-                st.error("❌ Incorrect Passphrase")
-
-    elif login_type == "Dynamic OTP Login":
-        st.info(f"Your One-Time Code: {st.session_state.generated_otp}")
-        otp_input = st.text_input("Enter the OTP above")
-        if st.button("Verify OTP"):
-            if otp_input == st.session_state.generated_otp:
-                st.session_state.authenticated = True
-                st.success("✅ OTP Verified! Access Granted.")
-                st.rerun()
-            else:
-                st.error("❌ Invalid OTP")
-
+secret_key = st.text_input("Enter Secret Key to Access the Analyzer", type="password")
+if st.button("Login"):
+    if secret_key in VALID_KEYS:
+        st.success("✅ Access Granted! Welcome to AI Wellness & Performance Analyzer")
+    else:
+        st.error("❌ Invalid Secret Key")
+        st.stop()
+else:
     st.stop()
 
 # ---------------- APP TITLE ----------------
@@ -178,14 +155,12 @@ if st.button("Generate Full AI Wellness Report"):
         fig_combo.update_layout(template="plotly_dark", height=400, title="Factor Contribution & Cumulative Curve")
         st.plotly_chart(fig_combo, use_container_width=True)
 
-        # Donut chart
         st.subheader("⚖ Daily Life Balance")
         balance_data = {"Study": study_hours,"Sleep": sleep_hours,"Workout": physical_activity,"Social": social_hours}
         fig_donut = go.Figure(data=[go.Pie(labels=list(balance_data.keys()), values=list(balance_data.values()), hole=0.6)])
         fig_donut.update_layout(template="plotly_dark", height=400, title="Daily Balance Ratio")
         st.plotly_chart(fig_donut, use_container_width=True)
 
-        # 3D Surface
         st.subheader("🧠 Predictive 3D Performance Surface")
         x = np.linspace(4,10,20)
         y = np.linspace(1,6,20)
@@ -195,8 +170,92 @@ if st.button("Generate Full AI Wellness Report"):
         fig_surface.update_layout(template="plotly_dark", height=500, scene=dict(xaxis_title="Sleep Hours", yaxis_title="Workout Hours", zaxis_title="Performance Potential"), title="Lifestyle-Performance Simulation")
         st.plotly_chart(fig_surface,use_container_width=True)
 
-    # ---------------- TAB 2-4 same as previous ----------------
-    # Diet & Workout Tab, Consultant Report, Career Blueprint remain unchanged
+    # ---------------- TAB 2: Diet & Workout ----------------
+    with tab2:
+        st.subheader("🥗 Personalized Nutrition & Meal Plan")
+        if food_type == "Vegetarian":
+            st.write("Breakfast: Oats + Milk + Almonds (Complex carbs + Protein)")
+            st.write("Lunch: Dal + Brown Rice + Paneer (High protein vegetarian)")
+            st.write("Snack: Fruits + Nuts")
+            st.write("Dinner: Light roti + vegetables")
+        elif food_type == "Vegan":
+            st.write("Breakfast: Peanut Butter Smoothie (Plant protein)")
+            st.write("Lunch: Quinoa + Chickpeas (Complete amino acids)")
+            st.write("Snack: Seeds Mix")
+            st.write("Dinner: Tofu + Vegetables")
+        else:
+            st.write("Breakfast: Eggs + Whole wheat toast (Protein + Carbs)")
+            st.write("Lunch: Grilled Chicken + Rice (Muscle repair)")
+            st.write("Snack: Yogurt")
+            st.write("Dinner: Fish + Salad (Omega-3)")
+
+        st.subheader("🏋 Structured Weekly Workout Plan")
+        if workout_type == "Gym Training":
+            st.write("Mon: Chest + Triceps\nTue: Back + Biceps\nWed: Legs\nThu: Shoulders\nFri: Core + HIIT")
+        elif workout_type == "Home Workout":
+            st.write("Pushups 3x15\nSquats 3x20\nPlank 3x60 sec\nJump Rope 10 min")
+        elif workout_type == "Yoga Only":
+            st.write("Surya Namaskar 10 rounds\nPranayama 15 min\nMeditation 20 min")
+        elif workout_type == "Cardio Focus":
+            st.write("Running 30 min\nCycling 20 min\nHIIT 15 min")
+        else:
+            st.write("Strength 3 days\nCardio 2 days\nYoga 1 day")
+
+    # ---------------- TAB 3: Consultant Report ----------------
+    with tab3:
+        st.subheader("🧠 Detailed Consultant Analysis")
+        st.write(f"Dear {name}, based on your lifestyle and inputs:")
+
+        st.markdown("**Stress Analysis:**")
+        if career_stress > 7:
+            st.write("High stress! Incorporate relaxation & recovery cycles.")
+        elif career_stress > 4:
+            st.write("Moderate stress; manageable with proper planning.")
+        else:
+            st.write("Healthy stress zone; keep balanced routines.")
+
+        st.markdown("**Productivity Deep Dive:**")
+        st.write(f"- Sleep Contribution: {sleep_hours*10}\n- Workout Contribution: {physical_activity*15}\n- Motivation Contribution: {motivation*5}\n- Stress Deduction: {-career_stress*4}")
+
+        st.markdown("**Nutrition Advice:**")
+        st.write(f"{food_type} diet optimized for mental clarity, energy, and muscle recovery.")
+
+        st.markdown("**Workout Guidance:**")
+        st.write(f"{workout_type} routine structured for max performance and recovery.")
+
+    # ---------------- TAB 4: Career Blueprint ----------------
+    with tab4:
+        st.subheader("🎯 Career Path & Skill Guide")
+        st.write(f"Domain: {career_domain}\nSpecialization: {career_niche}")
+        career_skills = {
+            "IT & Data": ["Data Analysis", "Machine Learning", "AI Development", "Cloud Computing"],
+            "Management": ["Leadership", "Strategic Planning", "Finance", "Project Management"],
+            "Government Exams": ["General Knowledge", "Reasoning", "Current Affairs", "Subject Specialization"],
+            "Creative Field": ["Design", "UI/UX", "Content Creation", "Brand Strategy"],
+            "Entrepreneurship": ["Business Planning", "Marketing", "Financial Management", "Networking"]
+        }
+        st.write("**Core Skills Required:**")
+        skills = career_skills.get(career_domain, [])
+        for skill in skills:
+            st.write(f"- {skill}")
+
+        st.write("**Recommended Books & Resources:**")
+        if career_domain == "IT & Data":
+            st.write("- Python for Data Analysis (Wes McKinney)")
+            st.write("- Hands-On Machine Learning with Scikit-Learn, Keras & TensorFlow (Aurelien Geron)")
+        elif career_domain == "Management":
+            st.write("- The Personal MBA (Josh Kaufman)")
+            st.write("- Principles of Management (Harold Koontz)")
+        elif career_domain == "Government Exams":
+            st.write("- Lucent's General Knowledge")
+            st.write("- Fast Track Objective Arithmetic (R.S. Aggarwal)")
+        elif career_domain == "Creative Field":
+            st.write("- Don't Make Me Think (Steve Krug)")
+            st.write("- The Design of Everyday Things (Don Norman)")
+        elif career_domain == "Entrepreneurship":
+            st.write("- Zero to One (Peter Thiel)")
+            st.write("- The Lean Startup (Eric Ries)")
+
     # ---------------- REPORT DOWNLOAD ----------------
     doc = Document()
     doc.add_heading("AI Wellness & Career Report", 0)
@@ -215,9 +274,3 @@ if st.button("Generate Full AI Wellness Report"):
         file_name="AI_Wellness_Report.docx",
         mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     )
-
-
-
-
-
-
