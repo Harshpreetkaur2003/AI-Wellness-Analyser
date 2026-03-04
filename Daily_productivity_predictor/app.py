@@ -245,8 +245,8 @@ if st.button("Generate Full AI Wellness Report"):
             st.write("- UI/UX Design, Content Creation, Art & Design, Photography")
         else:
             st.write("- Entrepreneurship, Startups, Product Management, Marketing")
-# ---------------- REPORT DOWNLOAD ----------------
-if st.button("Generate Full AI Wellness Report"):
+ # ---------------- REPORT DOWNLOAD ----------------
+if st.button("Download Consultant Report"):
 
     st.balloons()
 
@@ -262,7 +262,7 @@ if st.button("Generate Full AI Wellness Report"):
     prediction = model.predict(input_df)
     stress_level = le.inverse_transform(prediction)[0]
 
-    # ---------------- Consultant Report Texts ----------------
+    # ---------------- Consultant Suggestions ----------------
     if career_stress > 7:
         stress_text = "High stress! Prioritize recovery cycles and mindfulness techniques."
     elif career_stress > 4:
@@ -274,14 +274,14 @@ if st.button("Generate Full AI Wellness Report"):
     nutrition_text = f"{food_type} diet optimized for mental clarity, energy, and muscle recovery."
     workout_text = f"{workout_type} routine structured for max performance and recovery."
 
-    # Generate DOCX report
+    # ---------------- Generate DOCX ----------------
     doc = Document()
     doc.add_heading("🧠 AI Wellness Consultant Report", 0)
     doc.add_paragraph(f"Dear {name}, here is your personalized consultation report:\n")
-    doc.add_paragraph(f"1️⃣ Stress Analysis:\n{stress_text}")
-    doc.add_paragraph(f"2️⃣ Productivity Deep Dive:\n{productivity_text}")
-    doc.add_paragraph(f"3️⃣ Nutrition Guidance:\n{nutrition_text}")
-    doc.add_paragraph(f"4️⃣ Workout Guidance:\n{workout_text}")
+    doc.add_paragraph(f"1️⃣ Stress Analysis:\n{stress_text}\n")
+    doc.add_paragraph(f"2️⃣ Productivity Deep Dive:\n{productivity_text}\n")
+    doc.add_paragraph(f"3️⃣ Nutrition Guidance:\n{nutrition_text}\n")
+    doc.add_paragraph(f"4️⃣ Workout Guidance:\n{workout_text}\n")
 
     buffer = io.BytesIO()
     doc.save(buffer)
@@ -291,5 +291,9 @@ if st.button("Generate Full AI Wellness Report"):
         file_name="AI_Wellness_Consultant_Report.docx",
         mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     )
+
+    
+
+
 
 
