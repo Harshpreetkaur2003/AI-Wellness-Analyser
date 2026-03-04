@@ -245,7 +245,7 @@ if st.button("Generate Full AI Wellness Report"):
             st.write("- UI/UX Design, Content Creation, Art & Design, Photography")
         else:
             st.write("- Entrepreneurship, Startups, Product Management, Marketing")
-# ---------------- REPORT DOWNLOAD ----------------
+ # ---------------- REPORT DOWNLOAD ----------------
     doc = Document()
     doc.add_heading("AI Wellness & Career Report", 0)
     doc.add_paragraph(f"Name: {name}")
@@ -254,9 +254,6 @@ if st.button("Generate Full AI Wellness Report"):
     doc.add_paragraph(f"Health Score: {health_score}")
     doc.add_paragraph(f"Career Domain: {career_domain}")
     doc.add_paragraph(f"Career Niche: {career_niche}")
-    doc.add_paragraph("Diet & Workout Plan Summary:")
-    for d, w in zip(diet_plan, workout_plan):
-        doc.add_paragraph(f"{d} | {w}")
 
     buffer = io.BytesIO()
     doc.save(buffer)
