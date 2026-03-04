@@ -58,6 +58,13 @@ st.markdown(
         50% { transform: translateY(-10px); }
         100% { transform: translateY(0); }
     }
+    .chat-bubble {
+        background-color: rgba(0, 245, 255, 0.2);
+        padding: 10px 15px;
+        border-radius: 12px;
+        margin-bottom: 10px;
+        box-shadow: 0 0 10px #111111;
+    }
     </style>
     """,
     unsafe_allow_html=True
@@ -65,7 +72,7 @@ st.markdown(
 
 # ---------------- APP TITLE ----------------
 st.markdown('<div class="glass"><h1>🧠 AI Wellness & Performance Analyzer</h1></div>', unsafe_allow_html=True)
-st.markdown('<div class="glass"><h3>Smart Lifestyle • Stress Prediction • Fitness • Career Blueprint</h3></div>', unsafe_allow_html=True)
+st.markdown('<div class="glass"><h3>Smart Lifestyle • Stress Prediction • Fitness • Career Blueprint • Human-Robo Guide</h3></div>', unsafe_allow_html=True)
 
 # ---------------- USER INPUT ----------------
 st.header("📋 Enter Your Details")
@@ -101,11 +108,6 @@ st.markdown("---")
 
 # ---------------- AI PREDICTION FUNCTION ----------------
 def ai_prediction(study, sleep, workout, social, motivation, career_stress, bmi, water):
-    """
-    Simple AI logic for wellness prediction
-    Returns stress_level, stress_text, productivity_score, health_score, tips_list
-    """
-    # Stress Prediction
     stress_score = max(1, min(10, int(career_stress + (8 - sleep) + (5 - workout) * 1.5)))
     if stress_score >= 8:
         stress_text = "High Stress! Prioritize sleep, mindfulness, and breaks."
@@ -114,13 +116,9 @@ def ai_prediction(study, sleep, workout, social, motivation, career_stress, bmi,
     else:
         stress_text = "Low Stress. Keep up healthy habits!"
 
-    # Productivity Score
     productivity_score = max(0, min(100, int((sleep*10) + (workout*10) + (motivation*5) - (career_stress*4))))
-    
-    # Health Score (BMI + Water Intake + Activity)
     health_score = max(0, min(100, int((100 - abs(22-bmi)*5) + workout*5 + water*5)))
 
-    # Tips
     tips = []
     if sleep < 6:
         tips.append("Increase sleep to at least 7 hours for better recovery.")
@@ -135,20 +133,40 @@ def ai_prediction(study, sleep, workout, social, motivation, career_stress, bmi,
 
     return stress_score, stress_text, productivity_score, health_score, tips
 
+# ---------------- HUMAN ROBO GUIDE ----------------
+st.sidebar.header("🤖 Human-Robo Guide")
+user_message = st.sidebar.text_area("Ask me for advice or tips:", "")
+if st.sidebar.button("Send") and user_message.strip() != "":
+    # Simple AI responses based on keywords
+    response = "Hello! I am your Human-Robo Guide 🤖. Here's some advice:\n"
+    if "sleep" in user_message.lower():
+        response += "- Ensure 7-8 hours of quality sleep daily.\n"
+    if "stress" in user_message.lower():
+        if career_stress > 7:
+            response += "- You have high stress, try meditation and short breaks.\n"
+        else:
+            response += "- Your stress is moderate, keep consistent routines.\n"
+    if "workout" in user_message.lower() or "exercise" in user_message.lower():
+        response += "- Physical activity improves mood and productivity.\n"
+    if "diet" in user_message.lower() or "food" in user_message.lower():
+        response += "- Stay hydrated and balance protein, carbs, and veggies.\n"
+    if "motivation" in user_message.lower():
+        response += "- Set achievable goals and reward yourself for progress.\n"
+    if response == "Hello! I am your Human-Robo Guide 🤖. Here's some advice:\n":
+        response += "- Keep maintaining a balanced lifestyle and stay consistent!\n"
+    
+    st.sidebar.markdown(f'<div class="chat-bubble">{response}</div>', unsafe_allow_html=True)
+
 # ---------------- GENERATE REPORT ----------------
 if st.button("Generate Full AI Wellness Report"):
 
     st.balloons()
     
-    # BMI Calculation
     bmi = weight / ((height / 100) ** 2)
-    
-    # AI Prediction
     stress_score, stress_text, productivity_score, health_score, tips = ai_prediction(
         study_hours, sleep_hours, physical_activity, social_hours, motivation, career_stress, bmi, water
     )
 
-    # Display Metrics
     st.markdown(f'<div class="glass"><h2>💬 Dear {name}, Here Is Your AI Wellness Prediction & Tips</h2></div>', unsafe_allow_html=True)
     colA, colB, colC = st.columns(3)
     colA.metric("Stress Level", f"{stress_score}/10")
@@ -159,109 +177,17 @@ if st.button("Generate Full AI Wellness Report"):
     for tip in tips:
         st.write(f"- {tip}")
 
-    # ---------------- TABS ----------------
-    tab1, tab2, tab3, tab4 = st.tabs(["📊 Analytics","🥗 Diet & Workout","🧠 Consultant Report","🎯 Career Blueprint"])
-
-    # ---------------- TAB 1: Analytics ----------------
-    with tab1:
-        st.subheader("📈 Lifestyle & Performance Overview")
-        factors = ["Sleep","Workout","Motivation","Stress Impact"]
-        values = [sleep_hours*10, physical_activity*15, motivation*5, -career_stress*4]
-        fig_combo = go.Figure()
-        fig_combo.add_trace(go.Bar(x=factors, y=values, name="Impact Contribution", marker_color="#00F5FF"))
-        fig_combo.add_trace(go.Scatter(x=factors, y=np.cumsum(values), mode="lines+markers", name="Cumulative Effect", line=dict(color="#FF2E63")))
-        fig_combo.update_layout(template="plotly_dark", height=400, title="Factor Contribution & Cumulative Curve")
-        st.plotly_chart(fig_combo, use_container_width=True)
-
-        st.subheader("⚖ Daily Life Balance")
-        balance_data = {"Study": study_hours,"Sleep": sleep_hours,"Workout": physical_activity,"Social": social_hours}
-        fig_donut = go.Figure(data=[go.Pie(labels=list(balance_data.keys()), values=list(balance_data.values()), hole=0.6)])
-        fig_donut.update_layout(template="plotly_dark", height=400, title="Daily Balance Ratio")
-        st.plotly_chart(fig_donut, use_container_width=True)
-
-        st.subheader("🧠 Predictive 3D Performance Surface")
-        x = np.linspace(4,10,20)
-        y = np.linspace(1,6,20)
-        X,Y = np.meshgrid(x,y)
-        Z = (X*8)+(Y*12)
-        fig_surface = go.Figure(data=[go.Surface(z=Z,x=X,y=Y)])
-        fig_surface.update_layout(template="plotly_dark", height=500,
-            scene=dict(xaxis_title="Sleep Hours", yaxis_title="Workout Hours", zaxis_title="Performance Potential"),
-            title="Lifestyle-Performance Simulation")
-        st.plotly_chart(fig_surface,use_container_width=True)
-
-    # ---------------- TAB 2: Diet & Workout ----------------
-    with tab2:
-        st.subheader("🥗 Personalized Nutrition & Workout Plan")
-        if plan_type=="Personalized Plan":
-            st.write(f"Based on your inputs ({food_type}, {workout_type}), here is a tailored plan:")
-        else:
-            st.write(f"This is a generalized {food_type} diet & workout recommendation:")
-
-        if food_type == "Vegetarian":
-            st.write("Breakfast: Oats + Milk + Almonds\nLunch: Dal + Brown Rice + Paneer\nEvening: Fruits + Nuts\nDinner: Light Roti + Vegetables")
-        elif food_type == "Vegan":
-            st.write("Breakfast: Peanut Butter Smoothie\nLunch: Quinoa + Chickpeas\nSnack: Seeds Mix\nDinner: Tofu + Vegetables")
-        else:
-            st.write("Breakfast: Eggs + Toast\nLunch: Grilled Chicken + Rice\nSnack: Yogurt\nDinner: Fish + Salad")
-
-        st.subheader("🏋 Structured Weekly Workout Plan")
-        if workout_type == "Gym Training":
-            st.write("Mon: Chest + Triceps\nTue: Back + Biceps\nWed: Legs\nThu: Shoulders\nFri: Core + HIIT")
-        elif workout_type == "Home Workout":
-            st.write("Pushups 3x15\nSquats 3x20\nPlank 3x60 sec\nJump Rope 10 min")
-        elif workout_type == "Yoga Only":
-            st.write("Surya Namaskar 10 rounds\nPranayama 15 min\nMeditation 20 min")
-        elif workout_type == "Cardio Focus":
-            st.write("Running 30 min\nCycling 20 min\nHIIT 15 min")
-        else:
-            st.write("Strength 3 days\nCardio 2 days\nYoga 1 day")
-
-    # ---------------- TAB 3: Consultant Report ----------------
-    with tab3:
-        st.subheader("🧠 Detailed Consultant Analysis")
-        st.write(f"Dear {name}, based on your inputs and lifestyle metrics:")
-        st.markdown("**Stress Analysis:**")
-        st.write(stress_text)
-        st.markdown("**Productivity & Health Metrics:**")
-        st.write(f"- Productivity Score: {productivity_score}/100\n- Health Score: {health_score}/100")
-        st.markdown("**Personalized Tips:**")
-        for tip in tips:
-            st.write(f"- {tip}")
-
-    # ---------------- TAB 4: Career Blueprint ----------------
-    with tab4:
-        st.subheader("🎯 Career Blueprint & Skills")
-        st.write(f"Domain: {career_domain}\nSpecialization: {career_niche}")
-        st.write("Month 1 → Skill Foundation & Concept Clarity")
-        st.write("Month 2 → Portfolio / Practical Exposure")
-        st.write("Month 3 → Mock Testing + Real Applications")
-        st.write("Weekly: 5 Days Skill Deep Work, 1 Day Review, 1 Day Reflection + Networking")
-        st.write("Key Skills: Critical Thinking, Technical Skills, Communication, Time Management")
-        st.write("Subdomains One Can Explore:")
-        if career_domain=="IT & Data":
-            st.write("- Data Science, AI/ML, Web Development, Cloud Computing")
-        elif career_domain=="Management":
-            st.write("- Business Strategy, Finance, Marketing, Operations")
-        elif career_domain=="Government Exams":
-            st.write("- Civil Services, Banking, SSC, Defence Exams")
-        elif career_domain=="Creative Field":
-            st.write("- UI/UX Design, Content Creation, Art & Design, Photography")
-        else:
-            st.write("- Entrepreneurship, Startups, Product Management, Marketing")
-
 # ---------------- REPORT DOWNLOAD ----------------
 if st.button("Download Consultant Report"):
 
     st.balloons()
     
-    # Generate DOCX
     doc = Document()
     doc.add_heading("🧠 AI Wellness Consultant Report", 0)
     doc.add_paragraph(f"Dear {name}, here is your personalized consultation report:\n")
-    doc.add_paragraph(f"1️⃣ Stress Analysis:\n{stress_text}\n")
-    doc.add_paragraph(f"2️⃣ Productivity Score: {productivity_score}/100\nHealth Score: {health_score}/100\n")
-    doc.add_paragraph("3️⃣ Personalized Tips:")
+    doc.add_paragraph(f"Stress Level: {stress_score}/10\nAdvice: {stress_text}\n")
+    doc.add_paragraph(f"Productivity Score: {productivity_score}/100\nHealth Score: {health_score}/100\n")
+    doc.add_paragraph("Personalized Tips:")
     for tip in tips:
         doc.add_paragraph(f"- {tip}")
 
