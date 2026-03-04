@@ -22,7 +22,7 @@ st.markdown(
     """
     <style>
     .stApp {
-        background: url('https://images.unsplash.com/photo-1613478209690-476a50e7c2d6?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
+        background: url('https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
         background-size: cover;
         filter: brightness(0.3);
         color: white;
@@ -52,19 +52,6 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
-# ---------------- SECRET KEY LOGIN ----------------
-VALID_KEYS = ["UnlockWellnessAI", "AIInsight2026", "SmartLifeKey"]
-
-secret_key = st.text_input("Enter Secret Key to Access the Analyzer", type="password")
-if st.button("Login"):
-    if secret_key in VALID_KEYS:
-        st.success("✅ Access Granted! Welcome to AI Wellness & Performance Analyzer")
-    else:
-        st.error("❌ Invalid Secret Key")
-        st.stop()
-else:
-    st.stop()
 
 # ---------------- APP TITLE ----------------
 st.markdown('<div class="glass"><h1>🧠 AI Wellness & Performance Analyzer</h1></div>', unsafe_allow_html=True)
@@ -114,6 +101,7 @@ st.markdown("---")
 
 # ---------------- GENERATE REPORT ----------------
 if st.button("Generate Full AI Wellness Report"):
+
     st.balloons()
 
     # ML Prediction
@@ -138,7 +126,6 @@ if st.button("Generate Full AI Wellness Report"):
     colA.metric("Stress Level", stress_level)
     colB.metric("Productivity Score", f"{productivity_score}/100")
     colC.metric("Health Score", f"{health_score}/100")
-
     st.progress(productivity_score / 100)
 
     # ---------------- TABS ----------------
@@ -167,27 +154,20 @@ if st.button("Generate Full AI Wellness Report"):
         X,Y = np.meshgrid(x,y)
         Z = (X*8)+(Y*12)
         fig_surface = go.Figure(data=[go.Surface(z=Z,x=X,y=Y)])
-        fig_surface.update_layout(template="plotly_dark", height=500, scene=dict(xaxis_title="Sleep Hours", yaxis_title="Workout Hours", zaxis_title="Performance Potential"), title="Lifestyle-Performance Simulation")
+        fig_surface.update_layout(template="plotly_dark", height=500,
+            scene=dict(xaxis_title="Sleep Hours", yaxis_title="Workout Hours", zaxis_title="Performance Potential"),
+            title="Lifestyle-Performance Simulation")
         st.plotly_chart(fig_surface,use_container_width=True)
 
     # ---------------- TAB 2: Diet & Workout ----------------
     with tab2:
-        st.subheader("🥗 Personalized Nutrition & Meal Plan")
+        st.subheader("🥗 Personalized Nutrition")
         if food_type == "Vegetarian":
-            st.write("Breakfast: Oats + Milk + Almonds (Complex carbs + Protein)")
-            st.write("Lunch: Dal + Brown Rice + Paneer (High protein vegetarian)")
-            st.write("Snack: Fruits + Nuts")
-            st.write("Dinner: Light roti + vegetables")
+            st.write("Breakfast: Oats + Milk + Almonds\nLunch: Dal + Brown Rice + Paneer\nEvening: Fruits + Nuts\nDinner: Light Roti + Vegetables")
         elif food_type == "Vegan":
-            st.write("Breakfast: Peanut Butter Smoothie (Plant protein)")
-            st.write("Lunch: Quinoa + Chickpeas (Complete amino acids)")
-            st.write("Snack: Seeds Mix")
-            st.write("Dinner: Tofu + Vegetables")
+            st.write("Breakfast: Peanut Butter Smoothie\nLunch: Quinoa + Chickpeas\nSnack: Seeds Mix\nDinner: Tofu + Vegetables")
         else:
-            st.write("Breakfast: Eggs + Whole wheat toast (Protein + Carbs)")
-            st.write("Lunch: Grilled Chicken + Rice (Muscle repair)")
-            st.write("Snack: Yogurt")
-            st.write("Dinner: Fish + Salad (Omega-3)")
+            st.write("Breakfast: Eggs + Toast\nLunch: Grilled Chicken + Rice\nSnack: Yogurt\nDinner: Fish + Salad")
 
         st.subheader("🏋 Structured Weekly Workout Plan")
         if workout_type == "Gym Training":
@@ -204,15 +184,15 @@ if st.button("Generate Full AI Wellness Report"):
     # ---------------- TAB 3: Consultant Report ----------------
     with tab3:
         st.subheader("🧠 Detailed Consultant Analysis")
-        st.write(f"Dear {name}, based on your lifestyle and inputs:")
+        st.write(f"Dear {name}, based on your inputs and lifestyle metrics:")
 
         st.markdown("**Stress Analysis:**")
         if career_stress > 7:
-            st.write("High stress! Incorporate relaxation & recovery cycles.")
+            st.write("High stress! Prioritize recovery cycles.")
         elif career_stress > 4:
-            st.write("Moderate stress; manageable with proper planning.")
+            st.write("Moderate stress, manageable with discipline.")
         else:
-            st.write("Healthy stress zone; keep balanced routines.")
+            st.write("Healthy stress zone, keep it balanced.")
 
         st.markdown("**Productivity Deep Dive:**")
         st.write(f"- Sleep Contribution: {sleep_hours*10}\n- Workout Contribution: {physical_activity*15}\n- Motivation Contribution: {motivation*5}\n- Stress Deduction: {-career_stress*4}")
@@ -223,38 +203,20 @@ if st.button("Generate Full AI Wellness Report"):
         st.markdown("**Workout Guidance:**")
         st.write(f"{workout_type} routine structured for max performance and recovery.")
 
+        st.markdown("**Recommended Books for Personal & Career Growth:**")
+        st.write("- Atomic Habits by James Clear")
+        st.write("- Deep Work by Cal Newport")
+        st.write("- The 7 Habits of Highly Effective People by Stephen Covey")
+        st.write("- Mindset by Carol Dweck")
+
     # ---------------- TAB 4: Career Blueprint ----------------
     with tab4:
-        st.subheader("🎯 Career Path & Skill Guide")
+        st.subheader("🎯 90-Day Career Execution Plan")
         st.write(f"Domain: {career_domain}\nSpecialization: {career_niche}")
-        career_skills = {
-            "IT & Data": ["Data Analysis", "Machine Learning", "AI Development", "Cloud Computing"],
-            "Management": ["Leadership", "Strategic Planning", "Finance", "Project Management"],
-            "Government Exams": ["General Knowledge", "Reasoning", "Current Affairs", "Subject Specialization"],
-            "Creative Field": ["Design", "UI/UX", "Content Creation", "Brand Strategy"],
-            "Entrepreneurship": ["Business Planning", "Marketing", "Financial Management", "Networking"]
-        }
-        st.write("**Core Skills Required:**")
-        skills = career_skills.get(career_domain, [])
-        for skill in skills:
-            st.write(f"- {skill}")
-
-        st.write("**Recommended Books & Resources:**")
-        if career_domain == "IT & Data":
-            st.write("- Python for Data Analysis (Wes McKinney)")
-            st.write("- Hands-On Machine Learning with Scikit-Learn, Keras & TensorFlow (Aurelien Geron)")
-        elif career_domain == "Management":
-            st.write("- The Personal MBA (Josh Kaufman)")
-            st.write("- Principles of Management (Harold Koontz)")
-        elif career_domain == "Government Exams":
-            st.write("- Lucent's General Knowledge")
-            st.write("- Fast Track Objective Arithmetic (R.S. Aggarwal)")
-        elif career_domain == "Creative Field":
-            st.write("- Don't Make Me Think (Steve Krug)")
-            st.write("- The Design of Everyday Things (Don Norman)")
-        elif career_domain == "Entrepreneurship":
-            st.write("- Zero to One (Peter Thiel)")
-            st.write("- The Lean Startup (Eric Ries)")
+        st.write("Month 1 → Skill Foundation & Concept Clarity")
+        st.write("Month 2 → Portfolio / Practical Exposure")
+        st.write("Month 3 → Mock Testing + Real Applications")
+        st.write("Weekly: 5 Days Skill Deep Work, 1 Day Review, 1 Day Reflection + Networking")
 
     # ---------------- REPORT DOWNLOAD ----------------
     doc = Document()
