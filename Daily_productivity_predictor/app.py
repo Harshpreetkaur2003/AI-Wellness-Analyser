@@ -67,7 +67,7 @@ st.markdown(
 )
 
 # ---------------- PANDA GREETING ----------------
-s# ---------------- CARTOON GREETING ----------------
+# ---------------- CARTOON GREETING ----------------
 st.markdown(f"""
     <img src="data:image/png;base64,{st.image('/mnt/data/03b92800-99a5-4fb2-842e-4fb197547c8d.png')}" class="cartoon" style="width:120px; position: fixed; bottom: 10px; right: 10px; z-index: 9999; animation: float 3s infinite;">
     <h3 style='position: fixed; bottom: 130px; right: 10px; color: #00F5FF; text-shadow:1px 1px 5px #000000;'>👋 Hi there! Welcome!</h3>
@@ -223,4 +223,5 @@ if st.button("Generate Full AI Wellness Report"):
             st.write("- "+w)
 
     # ---------------- TAB 3 & 4 remain same as previous ----------------
+
 
