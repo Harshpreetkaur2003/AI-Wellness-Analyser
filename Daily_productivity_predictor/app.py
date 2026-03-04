@@ -71,15 +71,15 @@ st.markdown('<div class="glass"><h1>🧠 AI Wellness & Performance Analyzer</h1>
 st.markdown('<div class="glass"><h3>Smart Lifestyle • Stress Prediction • Fitness • Career Blueprint</h3></div>', unsafe_allow_html=True)
 
 # ---------------- LOAD MODEL ----------------
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(BASE_DIR, "models", "productivity_model.pkl")
-LE_PATH = os.path.join(BASE_DIR, "models", "label_encoder.pkl")
+#BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+#MODEL_PATH = os.path.join(BASE_DIR, "models", "productivity_model.pkl")
+#LE_PATH = os.path.join(BASE_DIR, "models", "label_encoder.pkl")
 
-with open(MODEL_PATH, "rb") as f:
-    model = pickle.load(f)
+#with open(MODEL_PATH, "rb") as f:
+ #   model = pickle.load(f)
 
-with open(LE_PATH, "rb") as f:
-    le = pickle.load(f)
+#with open(LE_PATH, "rb") as f:
+ #   le = pickle.load(f)
 
 # ---------------- USER INPUT ----------------
 st.header("📋 Enter Your Details")
@@ -293,6 +293,7 @@ if st.button("Download Consultant Report"):
     )
 
     
+
 
 
 
