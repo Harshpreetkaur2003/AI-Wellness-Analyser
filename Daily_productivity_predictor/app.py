@@ -67,9 +67,17 @@ st.markdown(
 )
 
 # ---------------- PANDA GREETING ----------------
-st.markdown("""
-    <img src="https://i.postimg.cc/0yTv3P3V/panda.png" class="panda">
-    <h3 style='position: fixed; bottom: 130px; right: 10px; color: #00F5FF; text-shadow:1px 1px 5px #000000;'>👋 Hello! Welcome to your AI Wellness Analyzer!</h3>
+s# ---------------- CARTOON GREETING ----------------
+st.markdown(f"""
+    <img src="data:image/png;base64,{st.image('/mnt/data/03b92800-99a5-4fb2-842e-4fb197547c8d.png')}" class="cartoon" style="width:120px; position: fixed; bottom: 10px; right: 10px; z-index: 9999; animation: float 3s infinite;">
+    <h3 style='position: fixed; bottom: 130px; right: 10px; color: #00F5FF; text-shadow:1px 1px 5px #000000;'>👋 Hi there! Welcome!</h3>
+    <style>
+    @keyframes float {{
+        0% {{ transform: translateY(0); }}
+        50% {{ transform: translateY(-15px); }}
+        100% {{ transform: translateY(0); }}
+    }}
+    </style>
 """, unsafe_allow_html=True)
 
 # ---------------- APP TITLE ----------------
@@ -215,3 +223,4 @@ if st.button("Generate Full AI Wellness Report"):
             st.write("- "+w)
 
     # ---------------- TAB 3 & 4 remain same as previous ----------------
+
