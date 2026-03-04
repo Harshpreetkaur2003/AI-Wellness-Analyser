@@ -248,99 +248,52 @@ if st.button("Generate Full AI Wellness Report"):
 
     # ---------------- REPORT DOWNLOAD ----------------
   # ---------------- REPORT DOWNLOAD ----------------
-from docx.shared import Pt
+# ---------------- REPORT DOWNLOAD ----------------
+if st.button("Generate Full AI Wellness Report"):
 
-doc = Document()
-doc.add_heading("AI Wellness & Career Report", 0)
-doc.add_paragraph(f"Name: {name}")
-doc.add_paragraph(f"Stress Level: {stress_level}")
-doc.add_paragraph(f"Productivity Score: {productivity_score}/100")
-doc.add_paragraph(f"Health Score: {health_score}/100")
-doc.add_paragraph(f"Career Domain: {career_domain}")
-doc.add_paragraph(f"Career Niche: {career_niche}")
-doc.add_paragraph("")
+    st.balloons()
 
-# ----- TAB 1: Analytics -----
-doc.add_heading("📊 Lifestyle & Performance Overview", level=1)
-doc.add_paragraph(f"Study Hours: {study_hours} | Sleep Hours: {sleep_hours} | Workout Hours: {physical_activity} | Social Hours: {social_hours}")
-doc.add_paragraph(f"Factor Contribution: Sleep-{sleep_hours*10}, Workout-{physical_activity*15}, Motivation-{motivation*5}, Stress Impact-{ -career_stress*4 }")
-doc.add_paragraph("Cumulative Lifestyle & Performance Score considered for recommendations.")
+    # ML Prediction
+    input_df = pd.DataFrame({
+        "Study_Hours_Per_Day": [study_hours],
+        "Extracurricular_Hours_Per_Day": [1],
+        "Sleep_Hours_Per_Day": [sleep_hours],
+        "Social_Hours_Per_Day": [social_hours],
+        "Physical_Activity_Hours_Per_Day": [physical_activity],
+        "GPA": [gpa]
+    })
 
-# ----- TAB 2: Diet & Workout -----
-doc.add_heading("🥗 Diet & Workout Plan", level=1)
-doc.add_paragraph(f"Plan Type: {plan_type}")
-doc.add_paragraph(f"Diet Preference: {food_type}")
-doc.add_paragraph("Diet Plan:")
-if food_type == "Vegetarian":
-    doc.add_paragraph("Breakfast: Oats + Milk + Almonds\nLunch: Dal + Brown Rice + Paneer\nEvening: Fruits + Nuts\nDinner: Light Roti + Vegetables")
-elif food_type == "Vegan":
-    doc.add_paragraph("Breakfast: Peanut Butter Smoothie\nLunch: Quinoa + Chickpeas\nSnack: Seeds Mix\nDinner: Tofu + Vegetables")
-else:
-    doc.add_paragraph("Breakfast: Eggs + Toast\nLunch: Grilled Chicken + Rice\nSnack: Yogurt\nDinner: Fish + Salad")
+    # Predict stress level
+    try:
+        prediction = model.predict(input_df)
+        stress_level = le.inverse_transform(prediction)[0]
+    except Exception as e:
+        st.error(f"Prediction Error: {e}")
+        stress_level = "N/A"
 
-doc.add_paragraph(f"Workout Preference: {workout_type}")
-doc.add_paragraph("Weekly Workout Plan:")
-if workout_type == "Gym Training":
-    doc.add_paragraph("Mon: Chest + Triceps\nTue: Back + Biceps\nWed: Legs\nThu: Shoulders\nFri: Core + HIIT")
-elif workout_type == "Home Workout":
-    doc.add_paragraph("Pushups 3x15\nSquats 3x20\nPlank 3x60 sec\nJump Rope 10 min")
-elif workout_type == "Yoga Only":
-    doc.add_paragraph("Surya Namaskar 10 rounds\nPranayama 15 min\nMeditation 20 min")
-elif workout_type == "Cardio Focus":
-    doc.add_paragraph("Running 30 min\nCycling 20 min\nHIIT 15 min")
-else:
-    doc.add_paragraph("Strength 3 days\nCardio 2 days\nYoga 1 day")
+    # KPI Metrics
+    bmi = weight / ((height / 100) ** 2)
+    productivity_score = max(0, min(int((sleep_hours * 10) + (physical_activity * 15) + (motivation * 5) - (career_stress * 4)), 100))
+    health_score = max(0, min(int((100 - abs(22 - bmi) * 5) + (physical_activity * 10) + (water * 5)), 100))
 
-# ----- TAB 3: Consultant Report -----
-doc.add_heading("🧠 Consultant Analysis", level=1)
-if career_stress > 7:
-    doc.add_paragraph("Stress Analysis: High stress! Prioritize recovery cycles and mindfulness techniques.")
-elif career_stress > 4:
-    doc.add_paragraph("Stress Analysis: Moderate stress, manageable with discipline and structured schedule.")
-else:
-    doc.add_paragraph("Stress Analysis: Healthy stress zone, keep it balanced and maintain habits.")
+    # Generate DOCX report
+    doc = Document()
+    doc.add_heading("AI Wellness & Career Report", 0)
+    doc.add_paragraph(f"Name: {name}")
+    doc.add_paragraph(f"Stress Level: {stress_level}")
+    doc.add_paragraph(f"Productivity Score: {productivity_score}")
+    doc.add_paragraph(f"Health Score: {health_score}")
+    doc.add_paragraph(f"Career Domain: {career_domain}")
+    doc.add_paragraph(f"Career Niche: {career_niche}")
 
-doc.add_paragraph(f"Productivity Deep Dive:\n- Sleep Contribution: {sleep_hours*10}\n- Workout Contribution: {physical_activity*15}\n- Motivation Contribution: {motivation*5}\n- Stress Deduction: {-career_stress*4}")
+    buffer = io.BytesIO()
+    doc.save(buffer)
+    st.download_button(
+        "⬇️ Download Full Professional Report",
+        data=buffer.getvalue(),
+        file_name="AI_Wellness_Report.docx",
+        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    )
 
-doc.add_paragraph("Nutrition Guidance:")
-doc.add_paragraph(f"{food_type} diet optimized for mental clarity, energy, and muscle recovery.")
-
-doc.add_paragraph("Workout Guidance:")
-doc.add_paragraph(f"{workout_type} routine structured for max performance and recovery.")
-
-doc.add_paragraph("Recommended Books for Growth:")
-doc.add_paragraph("- Atomic Habits by James Clear\n- Deep Work by Cal Newport\n- The 7 Habits of Highly Effective People by Stephen Covey\n- Mindset by Carol Dweck")
-
-# ----- TAB 4: Career Blueprint -----
-doc.add_heading("🎯 Career Blueprint & Skills", level=1)
-doc.add_paragraph(f"Domain: {career_domain}")
-doc.add_paragraph(f"Specialization/Niche: {career_niche}")
-doc.add_paragraph("Month 1 → Skill Foundation & Concept Clarity")
-doc.add_paragraph("Month 2 → Portfolio / Practical Exposure")
-doc.add_paragraph("Month 3 → Mock Testing + Real Applications")
-doc.add_paragraph("Weekly Plan: 5 Days Skill Deep Work, 1 Day Review, 1 Day Reflection + Networking")
-doc.add_paragraph("Key Skills: Critical Thinking, Technical Skills, Communication, Time Management")
-
-doc.add_paragraph("Subdomains One Can Explore:")
-if career_domain=="IT & Data":
-    doc.add_paragraph("- Data Science, AI/ML, Web Development, Cloud Computing")
-elif career_domain=="Management":
-    doc.add_paragraph("- Business Strategy, Finance, Marketing, Operations")
-elif career_domain=="Government Exams":
-    doc.add_paragraph("- Civil Services, Banking, SSC, Defence Exams")
-elif career_domain=="Creative Field":
-    doc.add_paragraph("- UI/UX Design, Content Creation, Art & Design, Photography")
-else:
-    doc.add_paragraph("- Entrepreneurship, Startups, Product Management, Marketing")
-
-# ----- SAVE & DOWNLOAD -----
-buffer = io.BytesIO()
-doc.save(buffer)
-st.download_button(
-    "⬇️ Download Full Professional Report",
-    data=buffer.getvalue(),
-    file_name="AI_Wellness_Report.docx",
-    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-)
 
 
